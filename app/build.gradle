@@ -1,0 +1,74 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 33
+
+    defaultConfig {
+        applicationId "ir.morteza_aghighi.chargingalert"
+        minSdkVersion 23
+        targetSdkVersion 33
+//        versionCode 1
+//        versionName "1.0"
+        def versionPropsFile = file('version.properties')
+        def versionBuild
+
+        if (versionPropsFile.canRead()) {
+            Properties versionProps = new Properties()
+            versionProps.load(new FileInputStream(versionPropsFile))
+            versionBuild = versionProps['VERSION_BUILD'].toInteger()
+        } else {
+//            throw new FileNotFoundException("Could not read version.properties!")
+            new File(projectDir, "version.properties").text = "VERSION_BUILD=1"
+            gradlew recompile-scripts
+        }
+
+        ext.autoIncrementBuildNumber = {
+            if (versionPropsFile.canRead()) {
+                Properties versionProps = new Properties()
+                versionProps.load(new FileInputStream(versionPropsFile))
+                versionBuild = versionProps['VERSION_BUILD'].toInteger() + 1
+                versionProps['VERSION_BUILD'] = versionBuild.toString()
+                versionProps.store(versionPropsFile.newWriter(), null)
+            } else {
+                throw new FileNotFoundException("Could not read version.properties!")
+            }
+        }
+
+        // Add / change this part in defaultConfig for the versionCode
+        defaultConfig {
+            versionCode versionBuild
+        }
+
+        gradle.taskGraph.whenReady { taskGraph ->
+            if (taskGraph.hasTask(assembleDebug)) {
+                autoIncrementBuildNumber()
+            } else if (taskGraph.hasTask(assembleRelease)) {
+                autoIncrementBuildNumber()
+            }
+        }
+        versionName = (0 + versionBuild / 100)
+        setProperty("archivesBaseName", "Charging_Alert-$versionName")
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    namespace 'ir.morteza_aghighi.chargingalert'
+}
+
+dependencies {
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+    implementation 'androidx.appcompat:appcompat:1.6.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    implementation 'com.github.zcweng:switch-button:0.0.3@aar'
+    implementation 'me.tankery.lib:circularSeekBar:1.2.0'
+    implementation 'com.google.android.material:material:1.8.0'
+}

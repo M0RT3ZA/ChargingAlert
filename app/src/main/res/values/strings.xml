@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Charging Alert</string>
+    <string name="boot_up_switch">Auto Start Service on Boot</string>
+    <string name="enable_charging_alert">Enable Charging Alert</string>
+    <string name="disable_charging_alert">Disable Charging Alert</string>
+    <string name="set_the_threshold_for_alert">Set Threshold for the Alert</string>
+    <string name="snooze">Dismiss</string>
+    <string name="dcPLZ">Please Unplug your Phone from Charger</string>
+    <string name="okay">OK let\'s do it!</string>
+    <string name="later">Maybe later</string>
+    <string name="warning">Warning!</string>
+    <string name="explenation">In android 10+ in order to show alert when Screen is off you need to give the \"Appear on Top\" permission.</string>
+    <string name="explenationBattery">In order to let app not being killed in background please turn off Battery Optimization for  this app in settings.</string>
+</resources>

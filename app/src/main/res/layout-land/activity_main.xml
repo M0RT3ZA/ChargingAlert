@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="ir.morteza_aghighi.chargingalert.MainActivity"
+    android:background="@color/activity_background">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:id="@+id/clLimiting"
+        android:layout_marginStart="12dp"
+        android:layout_marginBottom="12dp">
+        <me.tankery.lib.circularseekbar.CircularSeekBar
+            android:id="@+id/limitCircle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintDimensionRatio="1"
+            app:cs_circle_color="@color/VeryLightGreen"
+            app:cs_circle_progress_color="@color/Green"
+            app:cs_circle_stroke_width="@dimen/circleStroke"
+            app:cs_end_angle="0"
+            app:cs_max="95"
+            app:cs_pointer_halo_color = "@color/LightGreen"
+            app:cs_move_outside_circle="true"
+            app:cs_pointer_color="@color/Green"
+            app:cs_pointer_halo_color_ontouch="@color/LightGreen"
+            app:cs_pointer_stroke_width="@dimen/circlePointer"
+            app:cs_progress="0"
+            app:cs_start_angle="180"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <TextView
+            android:id="@+id/tvThreshold"
+            android:layout_width="0dp"
+            android:textSize="64sp"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="5%"
+            android:textStyle="bold"
+            android:fontFamily="@font/iranian_sans"
+            android:textColor="@color/white"/>
+
+        <TextView
+            android:id="@+id/tvThresholdTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginBottom="8dp"
+            android:fontFamily="@font/iranian_sans"
+            android:text="@string/set_the_threshold_for_alert"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            app:layout_constraintBottom_toTopOf="@id/btnChargingAlert"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="Set the Threshold for Alert" />
+
+        <Button
+            android:id="@+id/btnChargingAlert"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/custom_ripple_confirm"
+            android:fontFamily="@font/iranian_sans"
+            android:paddingStart="6dp"
+            android:paddingEnd="6dp"
+            android:layout_marginBottom="8dp"
+            android:text="@string/enable_charging_alert"
+            android:textAlignment="center"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:paddingTop="2dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintVertical_chainStyle="packed" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="12dp"
+        android:id="@+id/clTVs"
+        app:layout_constraintStart_toEndOf="@id/clLimiting"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/llAutoStart">
+
+        <TextView
+            android:id="@+id/tvBatPercent"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:fontFamily="@font/iranian_sans"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            app:layout_constraintVertical_chainStyle="spread_inside"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/tvBatVoltage"
+            app:layout_constraintBottom_toTopOf="@id/tvBatHealth"
+            tools:text="tvBatPercent" />
+
+        <TextView
+            android:fontFamily="@font/iranian_sans"
+            android:textColor="@color/white"
+            android:id="@+id/tvBatVoltage"
+            tools:text="tvBatVoltage"
+            android:layout_width="0dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="8dp"
+            android:textAlignment="center"
+            android:layout_height="wrap_content"
+            app:layout_constraintVertical_chainStyle="spread_inside"
+            app:layout_constraintStart_toEndOf="@id/tvBatPercent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/tvBatType"/>
+        <TextView
+            android:fontFamily="@font/iranian_sans"
+            android:textColor="@color/white"
+            android:id="@+id/tvBatHealth"
+            tools:text="tvBatHealth"
+            android:layout_width="0dp"
+            android:textAlignment="center"
+            android:layout_marginStart="8dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/tvBatType"
+            app:layout_constraintTop_toBottomOf="@id/tvBatPercent"
+            app:layout_constraintBottom_toTopOf="@id/tvBatChargingStat"/>
+
+        <TextView
+            android:id="@+id/tvBatType"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="8dp"
+            android:fontFamily="@font/iranian_sans"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            app:layout_constraintStart_toEndOf="@+id/tvBatHealth"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvBatVoltage"
+            app:layout_constraintBottom_toTopOf="@id/tvBatTemp"
+            tools:text="tvBatType" />
+
+        <TextView
+            android:id="@+id/tvBatChargingStat"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:layout_marginStart="8dp"
+            android:fontFamily="@font/iranian_sans"
+            android:textColor="@color/white"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/tvBatTemp"
+            app:layout_constraintTop_toBottomOf="@id/tvBatHealth"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:text="tvBatChargingStat" />
+
+        <TextView
+            android:id="@+id/tvBatTemp"
+            android:layout_width="0dp"
+            android:textAlignment="center"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="8dp"
+            android:fontFamily="@font/iranian_sans"
+            android:textColor="@color/white"
+            app:layout_constraintStart_toEndOf="@id/tvBatChargingStat"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvBatType"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:text="tvBatTemp" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <LinearLayout
+        android:id="@+id/llAutoStart"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="14dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintStart_toStartOf="@id/clTVs"
+        app:layout_constraintEnd_toEndOf="@id/clTVs"
+        app:layout_constraintBottom_toBottomOf="parent"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="12dp"
+            android:fontFamily="@font/iranian_sans"
+            android:textColor="@color/white"
+            android:text="@string/boot_up_switch"
+            android:textAlignment="center"
+            android:textSize="24sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.suke.widget.SwitchButton
+            android:id="@+id/swBoot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:sb_checked_color="@color/Green"/>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
