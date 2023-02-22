@@ -1,62 +1,65 @@
-package ir.morteza_aghighi.chargingalert.tools;
+package ir.morteza_aghighi.chargingalert.tools
 
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
+import android.annotation.SuppressLint
+import android.content.Context
+import android.preference.PreferenceManager
 
+object SharedPrefs {
+    @JvmStatic
+    @SuppressLint("ApplySharedPref")
+    fun setString(key: String?, value: String?, context: Context?) {
+        val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+        val editor = preferences.edit()
+        editor.putString(key, value)
+        editor.commit()
+    }
 
-public class SharedPrefs {
+    @JvmStatic
+    fun getString(key: String?, context: Context?): String? {
+        val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+        return preferences.getString(key, "null")
+    }
+
+    @JvmStatic
+    @SuppressLint("ApplySharedPref")
+    fun setBoolean(key: String?, value: Boolean, context: Context?) {
+        val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+        val editor = preferences.edit()
+        editor.putBoolean(key, value)
+        editor.commit()
+    }
+
+    @JvmStatic
+    fun getBoolean(key: String?, context: Context?): Boolean {
+        val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+        return preferences.getBoolean(key, false)
+    }
+
+    @JvmStatic
+    @SuppressLint("ApplySharedPref")
+    fun setInt(key: String?, value: Int, context: Context?) {
+        val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+        val editor = preferences.edit()
+        editor.putInt(key, value)
+        editor.commit()
+    }
+
+    @JvmStatic
+    fun getInt(key: String?, context: Context?): Int {
+        val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+        return preferences.getInt(key, 0)
+    }
 
     @SuppressLint("ApplySharedPref")
-    public static void setString(String key, String value, Context context) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putString(key, value);
-        editor.commit();
+    fun setFloat(key: String?, value: Float, context: Context?) {
+        val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+        val editor = preferences.edit()
+        editor.putFloat(key, value)
+        editor.commit()
     }
 
-    public static String getString(String key, Context context) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        return preferences.getString(key,"null");
-    }
-
-    @SuppressLint("ApplySharedPref")
-    public static void setBoolean(String key, boolean value, Context context) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putBoolean(key, value);
-        editor.commit();
-    }
-
-    public static boolean getBoolean(String key, Context context) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        return preferences.getBoolean(key,false);
-    }
-
-    @SuppressLint("ApplySharedPref")
-    public static void setInt(String key, int value, Context context) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putInt(key, value);
-        editor.commit();
-    }
-
-    public static int getInt(String key, Context context) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        return preferences.getInt(key,0);
-    }
-
-    @SuppressLint("ApplySharedPref")
-    public static void setFloat(String key, float value, Context context) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putFloat(key, value);
-        editor.commit();
-    }
-
-    public static float getFloat(String key, Context context) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        return preferences.getFloat(key,0);
+    fun getFloat(key: String?, context: Context?): Float {
+        val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+        return preferences.getFloat(key, 0f)
     }
 }

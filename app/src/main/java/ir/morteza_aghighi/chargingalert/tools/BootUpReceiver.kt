@@ -1,29 +1,34 @@
-package ir.morteza_aghighi.chargingalert.tools;
+package ir.morteza_aghighi.chargingalert.tools
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.os.Build;
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.os.Build
+import ir.morteza_aghighi.chargingalert.ChargingMonitorService
 
-import ir.morteza_aghighi.chargingalert.ChargingMonitorService;
-
-
-public class /*tittle = getString(R.string.warning);
-            message = getString(R.string.explenation);*/BootUpReceiver extends BroadcastReceiver {
-    @Override
-    public void onReceive(Context context, Intent intent) {
-
-        if (SharedPrefs.getBoolean("bootFlag", context) &&
-                Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction()) &&
-                !(new ServiceMonitor().isMyServiceRunning(ChargingMonitorService.class, context))) {
-            new ToastMaker(context).msg("Starting Charging Monitor Service...");
+class  /*tittle = getString(R.string.warning);
+            message = getString(R.string.explenation);*/
+BootUpReceiver : BroadcastReceiver() {
+    override fun onReceive(context: Context, intent: Intent) {
+        if (SharedPrefs.getBoolean(
+                "bootFlag",
+                context
+            ) && Intent.ACTION_BOOT_COMPLETED == intent.action &&
+            !ServiceMonitor().isMyServiceRunning(ChargingMonitorService::class.java, context)
+        ) {
+            ToastMaker(context,"Starting Charging Monitor Service...").msg()
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    context.startForegroundService(new Intent(context, ChargingMonitorService.class));
+                    context.startForegroundService(
+                        Intent(
+                            context,
+                            ChargingMonitorService::class.java
+                        )
+                    )
                 } else {
-                    context.startService(new Intent(context, ChargingMonitorService.class));
+                    context.startService(Intent(context, ChargingMonitorService::class.java))
                 }
-            } catch (Exception ignored) {
+            } catch (ignored: Exception) {
             }
         }
     }

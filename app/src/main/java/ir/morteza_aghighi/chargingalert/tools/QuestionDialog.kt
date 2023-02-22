@@ -1,109 +1,89 @@
-package ir.morteza_aghighi.chargingalert.tools;
+package ir.morteza_aghighi.chargingalert.tools
 
-import android.app.Dialog;
-import android.content.Context;
-import android.content.res.Configuration;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.TextView;
+import android.app.Dialog
+import android.content.Context
+import android.content.res.Configuration
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Button
+import android.widget.TextView
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import ir.morteza_aghighi.chargingalert.R
+import java.util.*
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
-
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
-
-import java.util.Objects;
-
-import ir.morteza_aghighi.chargingalert.R;
-
-
-public class QuestionDialog extends BottomSheetDialogFragment {
-    private final String tittle;
-    private final String message;
-    public QuestionDialog(String title, String message) {
-        this.tittle = title;
-        this.message = message;
+class QuestionDialog(private val tittle: String, private val message: String) :
+    BottomSheetDialogFragment() {
+    private var questionListener: QuestionListener? = null
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val view = inflater.inflate(R.layout.question_dialog, container, false)
+        val tvTittle = view.findViewById<TextView>(R.id.tvQuestionAlertTitle)
+        val tvMessage = view.findViewById<TextView>(R.id.tvQuestionAlertMessage)
+        tvTittle.text = tittle
+        tvMessage.text = message
+        val btnConfirm = view.findViewById<Button>(R.id.btnConfirm)
+        val btnReject = view.findViewById<Button>(R.id.btnReject)
+        btnConfirm.setOnClickListener {
+            questionListener!!.onButtonClicked(true)
+            dismiss()
+        }
+        btnReject.setOnClickListener {
+            questionListener!!.onButtonClicked(false)
+            dismiss()
+        }
+        return view
     }
 
-    private QuestionListener questionListener;
-
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view =  inflater.inflate(R.layout.question_dialog, container, false);
-        TextView tvTittle = view.findViewById(R.id.tvQuestionAlertTitle);
-        TextView tvMessage = view.findViewById(R.id.tvQuestionAlertMessage);
-        tvTittle.setText(tittle);
-        tvMessage.setText(message);
-        Button btnConfirm = view.findViewById(R.id.btnConfirm);
-        Button btnReject = view.findViewById(R.id.btnReject);
-
-
-        btnConfirm.setOnClickListener(v -> {
-            questionListener.onButtonClicked(true);
-            dismiss();
-        });
-
-        btnReject.setOnClickListener(v -> {
-            questionListener.onButtonClicked(false);
-            dismiss();
-        });
-
-        return view;
-    }
-
-    public interface QuestionListener {
-        void onButtonClicked(boolean result);
-    }
-
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
         try {
 //            tittle = getString(R.string.warning);
 //            message = getString(R.string.explenation);
-            questionListener = (QuestionListener) context;
-        }catch (Exception ignored){}
+            questionListener = context as QuestionListener
+        } catch (ignored: Exception) {
+        }
     }
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        View v;
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        val v: View
         try {
-            v = (View) requireView().getParent();
-            if(v.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT){
-                CoordinatorLayout.LayoutParams layoutParams =
-                        (CoordinatorLayout.LayoutParams) v.getLayoutParams();
-                layoutParams.setMargins(60,-200,60,0);
-            }else {
-                CoordinatorLayout.LayoutParams layoutParams =
-                        (CoordinatorLayout.LayoutParams) v.getLayoutParams();
-                layoutParams.setMargins(60,-400,60,0);
+            v = requireView().parent as View
+            if (v.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                val layoutParams = v.layoutParams as CoordinatorLayout.LayoutParams
+                layoutParams.setMargins(60, -200, 60, 0)
+            } else {
+                val layoutParams = v.layoutParams as CoordinatorLayout.LayoutParams
+                layoutParams.setMargins(60, -400, 60, 0)
             }
-
-        }catch (Exception ignored){}
+        } catch (ignored: Exception) {
+        }
     }
 
-    @NonNull
-    @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        final Dialog d = super.onCreateDialog(savedInstanceState);
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val d = super.onCreateDialog(savedInstanceState)
         // view hierarchy is inflated after dialog is shown
-        d.setOnShowListener(dialogInterface -> {
+        d.setOnShowListener {
             //this disables outside touch
             try {
-                Objects.requireNonNull(d.getWindow()).findViewById(R.id.touch_outside).setOnClickListener(null);
+                Objects.requireNonNull(d.window)!!.findViewById<View>(R.id.touch_outside)
+                    .setOnClickListener(null)
                 //this prevents dragging behavior
-                View content = d.getWindow().findViewById(R.id.design_bottom_sheet);
-                ((CoordinatorLayout.LayoutParams) content.getLayoutParams()).setBehavior(null);
-            }catch (Exception ignored){}
-        });
-        return d;
+                val content = d.window!!.findViewById<View>(R.id.design_bottom_sheet)
+                (content.layoutParams as CoordinatorLayout.LayoutParams).behavior = null
+            } catch (ignored: Exception) {
+            }
+        }
+        return d
     }
 
+    interface QuestionListener {
+        fun onButtonClicked(result: Boolean)
+    }
 }
