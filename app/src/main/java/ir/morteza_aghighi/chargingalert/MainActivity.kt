@@ -1,29 +1,22 @@
 package ir.morteza_aghighi.chargingalert
 
 import android.annotation.SuppressLint
-import android.content.BroadcastReceiver
-import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.PowerManager
 import android.provider.Settings
-import android.text.Html
-import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.suke.widget.SwitchButton
 import ir.morteza_aghighi.chargingalert.databinding.ActivityMainBinding
-import ir.morteza_aghighi.chargingalert.model.ChargingMonitorService
 import ir.morteza_aghighi.chargingalert.tools.QuestionDialog
 import ir.morteza_aghighi.chargingalert.tools.QuestionDialog.QuestionListener
-import ir.morteza_aghighi.chargingalert.tools.ServiceMonitor
 import ir.morteza_aghighi.chargingalert.tools.SharedPrefs
-import ir.morteza_aghighi.chargingalert.viewModel.UiStuff
+import ir.morteza_aghighi.chargingalert.viewModel.UiAndServiceController
 import me.tankery.lib.circularseekbar.CircularSeekBar
 import me.tankery.lib.circularseekbar.CircularSeekBar.OnCircularSeekBarChangeListener
 import java.text.DecimalFormat
@@ -262,12 +255,12 @@ class MainActivity : AppCompatActivity(), QuestionListener {
 
 //        val batIntentFilter = IntentFilter("android.intent.BATTERY_STATUS")
 //        registerReceiver(batReceiver, batIntentFilter)
-        UiStuff(this).readData()
+        UiAndServiceController(this, mainActivityBinding).readData()
     }
 
     override fun onDestroy() {
 //        unregisterReceiver(batReceiver)
-        UiStuff(this).unreadData()
+        UiAndServiceController(this).unreadData()
         super.onDestroy()
     }
 

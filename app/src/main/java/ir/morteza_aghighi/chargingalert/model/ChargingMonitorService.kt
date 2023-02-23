@@ -17,6 +17,7 @@ import ir.morteza_aghighi.chargingalert.tools.SharedPrefs.getBoolean
 import ir.morteza_aghighi.chargingalert.tools.SharedPrefs.getInt
 import ir.morteza_aghighi.chargingalert.tools.SharedPrefs.setBoolean
 
+private const val CHANNEL_ID = "ForegroundServiceChannel"
 class ChargingMonitorService : Service() {
     var alertCoolDownTimer: CountDownTimer = object : CountDownTimer(300000, 1000) {
         override fun onTick(millisUntilFinished: Long) {}
@@ -24,55 +25,68 @@ class ChargingMonitorService : Service() {
             setBoolean("isAlarmPlaying", false, this@ChargingMonitorService)
         }
     }
+
     override fun onBind(intent: Intent): IBinder? {
         return null
     }
+
     companion object {
-        const val CHANNEL_ID = "ForegroundServiceChannel"
-        private var batHealth = "Good"
-        private var batLevel = 0
+
+/*        private var batHealth = "Good"
         private var batPercentage = "0%"
         private var batVoltage = "0V"
         private var batType = "NaN"
         private var batChargingType = "AC"
-        private var batTemp = "0°"
+        private var batTemp = "0°"*/
     }
+
+    private val batteryStatsModel = BatteryStatsModel()
     private var batIFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
     var batteryStatus = Intent("android.intent.BATTERY_STATUS")
     private var batteryReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (Intent.ACTION_BATTERY_CHANGED == intent.action) {
-                batLevel = intent.getIntExtra("level", 0)
-                batPercentage = "$batLevel%"
-                batVoltage = "${intent.getIntExtra("voltage", 0)}V"
-                batHealth = when (intent.getIntExtra("health", 0)) {
-                    BatteryManager.BATTERY_HEALTH_COLD -> "Cold"
-                    BatteryManager.BATTERY_HEALTH_DEAD -> "Dead"
-                    BatteryManager.BATTERY_HEALTH_GOOD -> "Good"
-                    BatteryManager.BATTERY_HEALTH_OVER_VOLTAGE -> "Over Voltage"
-                    BatteryManager.BATTERY_HEALTH_OVERHEAT -> "Overheat"
-                    BatteryManager.BATTERY_HEALTH_UNKNOWN -> "Unknown"
-                    else -> {
-                        "Unspecified Failure"
+                batteryStatsModel.setBatLevel(intent.getIntExtra("level", 0))
+//                batPercentage = "$batLevel%"
+                batteryStatsModel.setBatPercentage("${batteryStatsModel.getBatLevel()}%")
+
+                batteryStatsModel.setBatVoltage("${intent.getIntExtra("voltage", 0)}V")
+
+                batteryStatsModel.setBatHealth(
+                    when (intent.getIntExtra("health", 0)) {
+                        BatteryManager.BATTERY_HEALTH_COLD -> "Cold"
+                        BatteryManager.BATTERY_HEALTH_DEAD -> "Dead"
+                        BatteryManager.BATTERY_HEALTH_GOOD -> "Good"
+                        BatteryManager.BATTERY_HEALTH_OVER_VOLTAGE -> "Over Voltage"
+                        BatteryManager.BATTERY_HEALTH_OVERHEAT -> "Overheat"
+                        BatteryManager.BATTERY_HEALTH_UNKNOWN -> "Unknown"
+                        else -> {
+                            "Unspecified Failure"
+                        }
                     }
-                }
+                )
 
-                batType = intent.getStringExtra("technology").toString()
+                batteryStatsModel.setBatType(intent.getStringExtra("technology").toString())
+//                batType = intent.getStringExtra("technology").toString()
+
                 val chargingType = intent.getIntExtra("plugged", -1)
-                batChargingType = when (chargingType) {
-                    BatteryManager.BATTERY_PLUGGED_AC -> "AC"
-                    BatteryManager.BATTERY_PLUGGED_USB -> "USB"
-                    BatteryManager.BATTERY_PLUGGED_WIRELESS -> "Wireless"
-                    else -> "Unknown"
-                }
+                batteryStatsModel.setBatChargingType(
+                    when (chargingType) {
+                        BatteryManager.BATTERY_PLUGGED_AC -> "AC"
+                        BatteryManager.BATTERY_PLUGGED_USB -> "USB"
+                        BatteryManager.BATTERY_PLUGGED_WIRELESS -> "Wireless"
+                        else -> "Unknown"
+                    }
+                )
 
-                batTemp = "${intent.getIntExtra("temperature", -1)}°C"
+//                batTemp = "${intent.getIntExtra("temperature", -1)}°C"
+                batteryStatsModel.setBatTemp("${intent.getIntExtra("temperature", -1)}°C")
                 sendBroadcast(batteryStatus)
                 if (getBoolean("isAlertEnabled", context) &&
-                    batChargingType != "Unknown" && getInt(
+                    batteryStatsModel.getBatChargingType() != "Unknown" && getInt(
                         "chargingLimit",
                         context
-                    ) <= batLevel &&
+                    ) <= batteryStatsModel.getBatLevel() &&
                     !getBoolean("isAlarmPlaying", context)
                 ) {
                     setBoolean("isAlarmPlaying", true, context)
@@ -151,7 +165,7 @@ class ChargingMonitorService : Service() {
         }
     }
 
-    fun getBatHealth(): String {
+/*    fun getBatHealth(): String {
         return batHealth
     }
 
@@ -173,5 +187,5 @@ class ChargingMonitorService : Service() {
 
     fun getBatTemp(): String {
         return batTemp
-    }
+    }*/
 }

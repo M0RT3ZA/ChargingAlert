@@ -6,35 +6,46 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
-import android.util.Log
 import ir.morteza_aghighi.chargingalert.databinding.ActivityMainBinding
+import ir.morteza_aghighi.chargingalert.model.BatteryStatsModel
 import ir.morteza_aghighi.chargingalert.model.ChargingMonitorService
 import ir.morteza_aghighi.chargingalert.tools.ServiceMonitor
 
-class UiStuff(val activity: Activity) {
+class UiAndServiceController {
+
+    private lateinit var activity: Activity
+    constructor(activity: Activity) : super() {
+        this.activity = activity
+    }
+
+    private lateinit var binding: ActivityMainBinding
+    constructor(activity: Activity, binding: ActivityMainBinding) : super() {
+        this.activity = activity
+        this.binding = binding
+    }
+
+
     private val batIntentFilter = IntentFilter("android.intent.BATTERY_STATUS")
     private val exitIntentFilter = IntentFilter("android.intent.CLOSE_ACTIVITY")
-    private var mainActivityBinding: ActivityMainBinding = ActivityMainBinding.inflate(activity.layoutInflater)
-    private val chargingMonitorService = ChargingMonitorService()
-    private var batReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+    private val batteryStatsModel = BatteryStatsModel()
+    private val batReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            Log.d("onReceive", "ACTION_BATTERY_CHANGED ${ChargingMonitorService().getBatPercentage()}")
-            mainActivityBinding.tvBatPercent.text =
-                chargingMonitorService.getBatPercentage()
-            mainActivityBinding.tvBatVoltage.text =
-                chargingMonitorService.getBatVoltage()
-            mainActivityBinding.tvBatHealth.text =
-                chargingMonitorService.getBatHealth()
-            mainActivityBinding.tvBatType.text =
-                chargingMonitorService.getBatType()
-            mainActivityBinding.tvBatTemp.text =
-                chargingMonitorService.getBatTemp()
-            mainActivityBinding.tvBatChargingStat.text =
-                chargingMonitorService.getBatChargingType()
+            binding.tvBatPercent.text =
+                batteryStatsModel.getBatPercentage()
+            binding.tvBatVoltage.text =
+                batteryStatsModel.getBatVoltage()
+            binding.tvBatHealth.text =
+                batteryStatsModel.getBatHealth()
+            binding.tvBatType.text =
+                batteryStatsModel.getBatType()
+            binding.tvBatTemp.text =
+                batteryStatsModel.getBatTemp()
+            binding.tvBatChargingStat.text =
+                batteryStatsModel.getBatChargingType()
         }
     }
 
-    private var exitReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+    private val exitReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             context.stopService(Intent(context, ChargingMonitorService::class.java))
             activity.finish()
