@@ -42,7 +42,7 @@
         </receiver>
 
         <service
-            android:name="ir.morteza_aghighi.chargingalert.ChargingMonitorService"
+            android:name="ir.morteza_aghighi.chargingalert.model.ChargingMonitorService"
             android:enabled="true" />
         <activity
             android:name="ir.morteza_aghighi.chargingalert.MainActivity"

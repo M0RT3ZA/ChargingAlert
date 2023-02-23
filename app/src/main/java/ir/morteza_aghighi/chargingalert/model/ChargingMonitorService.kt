@@ -24,23 +24,25 @@ class ChargingMonitorService : Service() {
             setBoolean("isAlarmPlaying", false, this@ChargingMonitorService)
         }
     }
-    private var batHealth = "Good"
-    private var batLevel = 0
-    private var batPercentage = "0%"
-    private var batVoltage = "0V"
-    private var batType = "NaN"
-    private var batChargingType = "AC"
-    private var batTemp = "0°"
     override fun onBind(intent: Intent): IBinder? {
         return null
     }
-
+    companion object {
+        const val CHANNEL_ID = "ForegroundServiceChannel"
+        private var batHealth = "Good"
+        private var batLevel = 0
+        private var batPercentage = "0%"
+        private var batVoltage = "0V"
+        private var batType = "NaN"
+        private var batChargingType = "AC"
+        private var batTemp = "0°"
+    }
     private var batIFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
     var batteryStatus = Intent("android.intent.BATTERY_STATUS")
     private var batteryReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (Intent.ACTION_BATTERY_CHANGED == intent.action) {
-                batLevel = intent.getIntExtra(" level ", 0)
+                batLevel = intent.getIntExtra("level", 0)
                 batPercentage = "$batLevel%"
                 batVoltage = "${intent.getIntExtra("voltage", 0)}V"
                 batHealth = when (intent.getIntExtra("health", 0)) {
@@ -149,25 +151,27 @@ class ChargingMonitorService : Service() {
         }
     }
 
-    companion object {
-        const val CHANNEL_ID = "ForegroundServiceChannel"
-    }
-    public fun getBatHealth(): String{
+    fun getBatHealth(): String {
         return batHealth
     }
-    public fun getBatPercentage(): String{
+
+    fun getBatPercentage(): String {
         return batPercentage
     }
-    public fun getBatVoltage(): String{
+
+    fun getBatVoltage(): String {
         return batVoltage
     }
-    public fun getBatType(): String{
+
+    fun getBatType(): String {
         return batType
     }
-    public fun getBatChargingType(): String{
-        return batPercentage
+
+    fun getBatChargingType(): String {
+        return batChargingType
     }
-    public fun getBatTemp(): String{
+
+    fun getBatTemp(): String {
         return batTemp
     }
 }

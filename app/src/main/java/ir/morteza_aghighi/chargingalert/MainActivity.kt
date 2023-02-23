@@ -17,6 +17,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.suke.widget.SwitchButton
+import ir.morteza_aghighi.chargingalert.databinding.ActivityMainBinding
 import ir.morteza_aghighi.chargingalert.model.ChargingMonitorService
 import ir.morteza_aghighi.chargingalert.tools.QuestionDialog
 import ir.morteza_aghighi.chargingalert.tools.QuestionDialog.QuestionListener
@@ -41,11 +42,12 @@ class MainActivity : AppCompatActivity(), QuestionListener {
     private val BATTERY_OPTIMIZATION_REQUEST_CODE = 70
     private val overlayTag = "overlayTag"
     private val batteryOptimizationTag = "batteryOptimizationTag"
-
+    private lateinit var mainActivityBinding: ActivityMainBinding
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        mainActivityBinding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(mainActivityBinding.root)
         if (!SharedPrefs.getBoolean("notFirstRun", this)) {
             SharedPrefs.setBoolean("notFirstRun", true, this)
             SharedPrefs.setInt("chargingLimit", 90, this)
@@ -90,9 +92,9 @@ class MainActivity : AppCompatActivity(), QuestionListener {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             w.navigationBarColor = ContextCompat.getColor(this, R.color.activity_background)
         }
-        val btnChargingAlert = findViewById<Button>(R.id.btnChargingAlert)
-        val csbPT = findViewById<CircularSeekBar>(R.id.limitCircle)
-        val tvThreshold = findViewById<TextView>(R.id.tvThreshold)
+        val btnChargingAlert = mainActivityBinding.btnChargingAlert
+        val csbPT = mainActivityBinding.limitCircle
+        val tvThreshold = mainActivityBinding.tvThreshold
         tvThreshold.text = SharedPrefs.getInt("chargingLimit", this).toString() + "%"
         csbPT.progress = (SharedPrefs.getInt("chargingLimit", this) - 5).toFloat()
         if (SharedPrefs.getBoolean("isAlertEnabled", this)) {
@@ -171,7 +173,7 @@ class MainActivity : AppCompatActivity(), QuestionListener {
                 SharedPrefs.setBoolean("isAlertEnabled", false, this@MainActivity)
             }
         })
-        tvBatPercent = findViewById(R.id.tvBatPercent)
+        /*tvBatPercent = findViewById(R.id.tvBatPercent)
         tvBatPercent.text = Html.fromHtml(
             "<b>Percentage:</b> " + SharedPrefs.getInt(
                 "BatPercent",
@@ -206,8 +208,8 @@ class MainActivity : AppCompatActivity(), QuestionListener {
             "<b>Temperature:</b> " + temperatureDecimalFormat.format(
                 SharedPrefs.getInt("BatTemp", this) * 0.1
             ) + "°C"
-        )
-        val swBoot = findViewById<SwitchButton>(R.id.swBoot)
+        )*/
+        val swBoot = mainActivityBinding.swBoot
         if (SharedPrefs.getBoolean("bootFlag", this@MainActivity)) swBoot.isChecked =
             true //Turn on switch if startup flag is true
         swBoot.toggle() //switch state
@@ -224,13 +226,8 @@ class MainActivity : AppCompatActivity(), QuestionListener {
         }
     }
 
-    private var exitReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            stopService(Intent(this@MainActivity, ChargingMonitorService::class.java))
-            finish()
-        }
-    }
-    private val batReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+
+    /*private val batReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         @SuppressLint("SetTextI18n")
         override fun onReceive(context: Context, intent: Intent) {
             tvBatPercent.text =
@@ -258,28 +255,19 @@ class MainActivity : AppCompatActivity(), QuestionListener {
                 ) + "°C"
             )
         }
-    }
+    }*/
 
     override fun onResume() {
         super.onResume()
-        if (!ServiceMonitor().isMyServiceRunning(ChargingMonitorService::class.java, this)) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForegroundService(Intent(this, ChargingMonitorService::class.java))
-            } else {
-                startService(Intent(this, ChargingMonitorService::class.java))
-            }
-        }
-        val exitIntentFilter = IntentFilter("android.intent.CLOSE_ACTIVITY")
+
 //        val batIntentFilter = IntentFilter("android.intent.BATTERY_STATUS")
-        registerReceiver(exitReceiver, exitIntentFilter)
 //        registerReceiver(batReceiver, batIntentFilter)
-        UiStuff().readData(this)
+        UiStuff(this).readData()
     }
 
     override fun onDestroy() {
-        unregisterReceiver(exitReceiver)
 //        unregisterReceiver(batReceiver)
-        UiStuff().unreadData(this)
+        UiStuff(this).unreadData()
         super.onDestroy()
     }
 
