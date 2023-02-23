@@ -17,7 +17,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.suke.widget.SwitchButton
-import ir.morteza_aghighi.chargingalert.model.ChargingMonitorService
+import ir.morteza_aghighi.chargingalert.model.model.ChargingMonitorService
 import ir.morteza_aghighi.chargingalert.tools.QuestionDialog
 import ir.morteza_aghighi.chargingalert.tools.QuestionDialog.QuestionListener
 import ir.morteza_aghighi.chargingalert.tools.ServiceMonitor

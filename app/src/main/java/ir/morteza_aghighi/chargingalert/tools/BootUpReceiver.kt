@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import ir.morteza_aghighi.chargingalert.model.ChargingMonitorService
+import ir.morteza_aghighi.chargingalert.model.model.ChargingMonitorService
 
 class
 /*tittle = getString(R.string.warning);
