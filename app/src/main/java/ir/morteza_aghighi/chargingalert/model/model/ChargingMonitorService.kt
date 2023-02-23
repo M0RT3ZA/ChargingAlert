@@ -1,4 +1,4 @@
-package ir.morteza_aghighi.chargingalert
+package ir.morteza_aghighi.chargingalert.model
 
 import android.app.*
 import android.content.BroadcastReceiver
@@ -10,6 +10,9 @@ import android.os.Build
 import android.os.CountDownTimer
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
+import ir.morteza_aghighi.chargingalert.AlertActivity
+import ir.morteza_aghighi.chargingalert.MainActivity
+import ir.morteza_aghighi.chargingalert.R
 import ir.morteza_aghighi.chargingalert.tools.SharedPrefs.getBoolean
 import ir.morteza_aghighi.chargingalert.tools.SharedPrefs.getInt
 import ir.morteza_aghighi.chargingalert.tools.SharedPrefs.getString
@@ -24,34 +27,41 @@ class ChargingMonitorService : Service() {
             setBoolean("isAlarmPlaying", false, this@ChargingMonitorService)
         }
     }
-
+    private var batteryHealth = "Good"
+    private var batteryPercentage = "0"
+    private var batteryVoltage = "0V"
+    private var batType = "NaN"
+    private var batChargingStat = ""
     override fun onBind(intent: Intent): IBinder? {
         return null
     }
 
     private var batIFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
-    var batteryStatus = Intent("android.intent.BATTERY_STATUS")
+//    var batteryStatus = Intent("android.intent.BATTERY_STATUS")
     private var batteryReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (Intent.ACTION_BATTERY_CHANGED == intent.action) {
-                batteryStatus.putExtra("BatPercent", intent.getIntExtra("level", 0))
-                setInt("BatPercent", intent.getIntExtra("level", 0), context)
-                batteryStatus.putExtra("BatVoltage", intent.getIntExtra("voltage", 0))
-                setInt("BatVoltage", intent.getIntExtra("voltage", 0), context)
-                var batteryHealth = "Good"
-                when (intent.getIntExtra("health", 0)) {
-                    BatteryManager.BATTERY_HEALTH_COLD -> batteryHealth = "Cold"
-                    BatteryManager.BATTERY_HEALTH_DEAD -> batteryHealth = "Dead"
-                    BatteryManager.BATTERY_HEALTH_GOOD -> batteryHealth = "Good"
-                    BatteryManager.BATTERY_HEALTH_OVER_VOLTAGE -> batteryHealth = "Over Voltage"
-                    BatteryManager.BATTERY_HEALTH_OVERHEAT -> batteryHealth = "Overheat"
-                    BatteryManager.BATTERY_HEALTH_UNKNOWN -> batteryHealth = "Unknown"
-                    BatteryManager.BATTERY_HEALTH_UNSPECIFIED_FAILURE -> batteryHealth =
+//                batteryStatus.putExtra("BatPercent", intent.getIntExtra("level", 0))
+                batteryPercentage = "${intent.getIntExtra(" level ", 0)}%"
+//                setInt("BatPercent", intent.getIntExtra("level", 0), context)
+//                batteryStatus.putExtra("BatVoltage", intent.getIntExtra("voltage", 0))
+                batteryVoltage = "${intent.getIntExtra("voltage", 0)}V"
+//                setInt("BatVoltage", intent.getIntExtra("voltage", 0), context)
+                batteryHealth = when (intent.getIntExtra("health", 0)) {
+                    BatteryManager.BATTERY_HEALTH_COLD -> "Cold"
+                    BatteryManager.BATTERY_HEALTH_DEAD -> "Dead"
+                    BatteryManager.BATTERY_HEALTH_GOOD -> "Good"
+                    BatteryManager.BATTERY_HEALTH_OVER_VOLTAGE -> "Over Voltage"
+                    BatteryManager.BATTERY_HEALTH_OVERHEAT -> "Overheat"
+                    BatteryManager.BATTERY_HEALTH_UNKNOWN -> "Unknown"
+                    else -> {
                         "Unspecified Failure"
+                    }
                 }
-                batteryStatus.putExtra("BatHealth", batteryHealth)
-                setString("BatHealth", batteryHealth, context)
-                batteryStatus.putExtra("BatType", intent.getStringExtra("technology"))
+//                batteryStatus.putExtra("BatHealth", batteryHealth)
+//                setString("BatHealth", batteryHealth, context)
+//                batteryStatus.putExtra("BatType", intent.getStringExtra("technology"))
+                batType = intent.getStringExtra("technology").toString()
                 setString("BatType", intent.getStringExtra("technology"), context)
                 val cType: String
                 val chargingType = intent.getIntExtra("plugged", -1)
@@ -61,7 +71,7 @@ class ChargingMonitorService : Service() {
                     BatteryManager.BATTERY_PLUGGED_WIRELESS -> "Wireless"
                     else -> "Unknown"
                 }
-                batteryStatus.putExtra("BatChargingStat", cType)
+//                batteryStatus.putExtra("BatChargingStat", cType)
                 setString("BatChargingStat", cType, context)
                 batteryStatus.putExtra("BatTemp", intent.getIntExtra("temperature", -1))
                 setInt("BatTemp", intent.getIntExtra("temperature", -1), context)
@@ -151,5 +161,8 @@ class ChargingMonitorService : Service() {
 
     companion object {
         const val CHANNEL_ID = "ForegroundServiceChannel"
+    }
+    public fun getHealth(): String{
+        return batteryHealth
     }
 }

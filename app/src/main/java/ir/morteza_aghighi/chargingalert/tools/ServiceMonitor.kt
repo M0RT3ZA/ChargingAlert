@@ -3,6 +3,7 @@ package ir.morteza_aghighi.chargingalert.tools
 import android.app.ActivityManager
 import android.content.Context
 
+/*Class to Check if background service is running*/
 class ServiceMonitor {
     fun isMyServiceRunning(serviceClass: Class<*>, context: Context): Boolean {
         val manager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager

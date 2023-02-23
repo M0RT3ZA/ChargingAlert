@@ -4,9 +4,10 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import ir.morteza_aghighi.chargingalert.ChargingMonitorService
+import ir.morteza_aghighi.chargingalert.model.ChargingMonitorService
 
-class  /*tittle = getString(R.string.warning);
+class
+/*tittle = getString(R.string.warning);
             message = getString(R.string.explenation);*/
 BootUpReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
@@ -16,7 +17,7 @@ BootUpReceiver : BroadcastReceiver() {
             ) && Intent.ACTION_BOOT_COMPLETED == intent.action &&
             !ServiceMonitor().isMyServiceRunning(ChargingMonitorService::class.java, context)
         ) {
-            ToastMaker(context,"Starting Charging Monitor Service...").msg()
+            ToastMaker(context, "Starting Charging Monitor Service...").msg()
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     context.startForegroundService(

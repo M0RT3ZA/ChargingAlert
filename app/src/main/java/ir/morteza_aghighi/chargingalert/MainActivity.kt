@@ -17,6 +17,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.suke.widget.SwitchButton
+import ir.morteza_aghighi.chargingalert.model.ChargingMonitorService
 import ir.morteza_aghighi.chargingalert.tools.QuestionDialog
 import ir.morteza_aghighi.chargingalert.tools.QuestionDialog.QuestionListener
 import ir.morteza_aghighi.chargingalert.tools.ServiceMonitor
@@ -213,7 +214,7 @@ class MainActivity : AppCompatActivity(), QuestionListener {
         swBoot.setShadowEffect(true) //disable shadow effect
         swBoot.isEnabled = true //disable button
         swBoot.setEnableEffect(true) //disable the switch animation
-        swBoot.setOnCheckedChangeListener { view: SwitchButton?, isChecked: Boolean ->
+        swBoot.setOnCheckedChangeListener { _: SwitchButton?, isChecked: Boolean ->
             SharedPrefs.setBoolean(
                 "bootFlag",
                 isChecked,
