@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.PowerManager
 import android.provider.Settings
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.suke.widget.SwitchButton
@@ -19,20 +18,14 @@ import ir.morteza_aghighi.chargingalert.tools.SharedPrefs
 import ir.morteza_aghighi.chargingalert.viewModel.UiAndServiceController
 import me.tankery.lib.circularseekbar.CircularSeekBar
 import me.tankery.lib.circularseekbar.CircularSeekBar.OnCircularSeekBarChangeListener
-import java.text.DecimalFormat
 
+// code to post/handler request for permission
+private const val OVERLAY_REQUEST_CODE = 69
+private const val BATTERY_OPTIMIZATION_REQUEST_CODE = 70
 class MainActivity : AppCompatActivity(), QuestionListener {
     private var questionDialog: QuestionDialog? = null
-    private lateinit var tvBatPercent: TextView
-    private lateinit var tvBatVoltage: TextView
-    private lateinit var tvBatHealth: TextView
-    private lateinit var tvBatType: TextView
-    private lateinit var tvBatChargingStat: TextView
-    private lateinit var tvBatTemp: TextView
 
-    // code to post/handler request for permission
-    private val OVERLAY_REQUEST_CODE = 69
-    private val BATTERY_OPTIMIZATION_REQUEST_CODE = 70
+
     private val overlayTag = "overlayTag"
     private val batteryOptimizationTag = "batteryOptimizationTag"
     private lateinit var mainActivityBinding: ActivityMainBinding
@@ -166,42 +159,7 @@ class MainActivity : AppCompatActivity(), QuestionListener {
                 SharedPrefs.setBoolean("isAlertEnabled", false, this@MainActivity)
             }
         })
-        /*tvBatPercent = findViewById(R.id.tvBatPercent)
-        tvBatPercent.text = Html.fromHtml(
-            "<b>Percentage:</b> " + SharedPrefs.getInt(
-                "BatPercent",
-                this
-            ) + "%"
-        )
-        tvBatVoltage = findViewById(R.id.tvBatVoltage)
-        tvBatVoltage.text = Html.fromHtml(
-            "<b>Voltage:</b> " + voltageDecimalFormat.format(
-                SharedPrefs.getInt("BatVoltage", this) * 0.001
-            ) + "V"
-        )
-        tvBatHealth = findViewById(R.id.tvBatHealth)
-        tvBatHealth.text = Html.fromHtml(
-            "<b>Health:</b> " + SharedPrefs.getString(
-                "BatHealth",
-                this
-            )
-        )
-        tvBatType = findViewById(R.id.tvBatType)
-        tvBatType.text = Html.fromHtml("<b>Type:</b> " + SharedPrefs.getString("BatType", this))
-        tvBatChargingStat = findViewById(R.id.tvBatChargingStat)
-        if (SharedPrefs.getString("BatChargingStat", this) == "Unknown") tvBatChargingStat.text =
-            Html.fromHtml("<b>Not Charging</b>") else tvBatChargingStat.text = Html.fromHtml(
-            "<b>Charging via:</b> " + SharedPrefs.getString(
-                "BatChargingStat",
-                this
-            )
-        )
-        tvBatTemp = findViewById(R.id.tvBatTemp)
-        tvBatTemp.text = Html.fromHtml(
-            "<b>Temperature:</b> " + temperatureDecimalFormat.format(
-                SharedPrefs.getInt("BatTemp", this) * 0.1
-            ) + "°C"
-        )*/
+
         val swBoot = mainActivityBinding.swBoot
         if (SharedPrefs.getBoolean("bootFlag", this@MainActivity)) swBoot.isChecked =
             true //Turn on switch if startup flag is true
@@ -219,47 +177,12 @@ class MainActivity : AppCompatActivity(), QuestionListener {
         }
     }
 
-
-    /*private val batReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-        @SuppressLint("SetTextI18n")
-        override fun onReceive(context: Context, intent: Intent) {
-            tvBatPercent.text =
-                Html.fromHtml("<b>Percentage:</b> " + intent.getIntExtra("BatPercent", 0) + "%")
-            tvBatVoltage.text = Html.fromHtml(
-                "<b>Voltage:</b> " + voltageDecimalFormat.format(
-                    intent.getIntExtra(
-                        "BatVoltage",
-                        0
-                    ) * 0.001
-                ) + "V"
-            )
-            tvBatHealth.text =
-                Html.fromHtml("<b>Health:</b> " + intent.getStringExtra("BatHealth"))
-            tvBatType.text = Html.fromHtml("<b>Type:</b> " + intent.getStringExtra("BatType"))
-            if (intent.getStringExtra("BatChargingStat") == "Unknown") tvBatChargingStat.text =
-                Html.fromHtml("<b>Not Charging</b>") else tvBatChargingStat.text =
-                Html.fromHtml("<b>Charging via:</b> " + intent.getStringExtra("BatChargingStat"))
-            tvBatTemp.text = Html.fromHtml(
-                "<b>Temperature:</b> " + temperatureDecimalFormat.format(
-                    intent.getIntExtra(
-                        "BatTemp",
-                        0
-                    ) * 0.1
-                ) + "°C"
-            )
-        }
-    }*/
-
     override fun onResume() {
         super.onResume()
-
-//        val batIntentFilter = IntentFilter("android.intent.BATTERY_STATUS")
-//        registerReceiver(batReceiver, batIntentFilter)
         UiAndServiceController(this, mainActivityBinding).readData()
     }
 
     override fun onDestroy() {
-//        unregisterReceiver(batReceiver)
         UiAndServiceController(this).unreadData()
         super.onDestroy()
     }
@@ -286,10 +209,5 @@ class MainActivity : AppCompatActivity(), QuestionListener {
             true,
             this@MainActivity
         )
-    }
-
-    companion object {
-        private val voltageDecimalFormat = DecimalFormat("0.000")
-        private val temperatureDecimalFormat = DecimalFormat("0.0")
     }
 }

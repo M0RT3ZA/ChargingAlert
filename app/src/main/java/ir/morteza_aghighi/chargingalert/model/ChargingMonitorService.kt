@@ -7,7 +7,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager
 import android.os.Build
-import android.os.CountDownTimer
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import ir.morteza_aghighi.chargingalert.AlertActivity
@@ -16,28 +15,17 @@ import ir.morteza_aghighi.chargingalert.R
 import ir.morteza_aghighi.chargingalert.tools.SharedPrefs.getBoolean
 import ir.morteza_aghighi.chargingalert.tools.SharedPrefs.getInt
 import ir.morteza_aghighi.chargingalert.tools.SharedPrefs.setBoolean
+import kotlinx.coroutines.*
 
 private const val CHANNEL_ID = "ForegroundServiceChannel"
-class ChargingMonitorService : Service() {
-    var alertCoolDownTimer: CountDownTimer = object : CountDownTimer(300000, 1000) {
-        override fun onTick(millisUntilFinished: Long) {}
-        override fun onFinish() {
-            setBoolean("isAlarmPlaying", false, this@ChargingMonitorService)
-        }
-    }
 
+class ChargingMonitorService : Service() {
+    private val errorHandler = CoroutineExceptionHandler { _, throwable ->
+        throwable.printStackTrace()
+    }
+    val alterCoolDownJob = CoroutineScope(Dispatchers.Default + errorHandler)
     override fun onBind(intent: Intent): IBinder? {
         return null
-    }
-
-    companion object {
-
-/*        private var batHealth = "Good"
-        private var batPercentage = "0%"
-        private var batVoltage = "0V"
-        private var batType = "NaN"
-        private var batChargingType = "AC"
-        private var batTemp = "0°"*/
     }
 
     private val batteryStatsModel = BatteryStatsModel()
@@ -47,10 +35,12 @@ class ChargingMonitorService : Service() {
         override fun onReceive(context: Context, intent: Intent) {
             if (Intent.ACTION_BATTERY_CHANGED == intent.action) {
                 batteryStatsModel.setBatLevel(intent.getIntExtra("level", 0))
-//                batPercentage = "$batLevel%"
+
                 batteryStatsModel.setBatPercentage("${batteryStatsModel.getBatLevel()}%")
 
-                batteryStatsModel.setBatVoltage("${intent.getIntExtra("voltage", 0)}V")
+                batteryStatsModel.setBatVoltage(
+                    "${intent.getIntExtra("voltage", 0).toFloat() / 1000}V"
+                )
 
                 batteryStatsModel.setBatHealth(
                     when (intent.getIntExtra("health", 0)) {
@@ -67,7 +57,6 @@ class ChargingMonitorService : Service() {
                 )
 
                 batteryStatsModel.setBatType(intent.getStringExtra("technology").toString())
-//                batType = intent.getStringExtra("technology").toString()
 
                 val chargingType = intent.getIntExtra("plugged", -1)
                 batteryStatsModel.setBatChargingType(
@@ -75,15 +64,15 @@ class ChargingMonitorService : Service() {
                         BatteryManager.BATTERY_PLUGGED_AC -> "AC"
                         BatteryManager.BATTERY_PLUGGED_USB -> "USB"
                         BatteryManager.BATTERY_PLUGGED_WIRELESS -> "Wireless"
-                        else -> "Unknown"
+                        BatteryManager.BATTERY_PLUGGED_DOCK -> "Dock"
+                        else -> "Unplugged"
                     }
                 )
 
-//                batTemp = "${intent.getIntExtra("temperature", -1)}°C"
-                batteryStatsModel.setBatTemp("${intent.getIntExtra("temperature", -1)}°C")
+                batteryStatsModel.setBatTemp("${intent.getIntExtra("temperature", -1) / 10}°C")
                 sendBroadcast(batteryStatus)
                 if (getBoolean("isAlertEnabled", context) &&
-                    batteryStatsModel.getBatChargingType() != "Unknown" && getInt(
+                    batteryStatsModel.getBatChargingType() != "Unplugged" && getInt(
                         "chargingLimit",
                         context
                     ) <= batteryStatsModel.getBatLevel() &&
@@ -94,7 +83,11 @@ class ChargingMonitorService : Service() {
                         Intent(context, AlertActivity::class.java)
                             .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
                     )
-                    alertCoolDownTimer.start()
+//                    alertCoolDownTimer.start()
+                    alterCoolDownJob.launch {
+                        delay(300000)
+                        setBoolean("isAlarmPlaying", false, this@ChargingMonitorService)
+                    }
                 }
             }
         }
@@ -131,7 +124,9 @@ class ChargingMonitorService : Service() {
         try {
             unregisterReceiver(batteryReceiver)
             unregisterReceiver(exitSignalReceiver)
-            alertCoolDownTimer.cancel()
+//            alertCoolDownTimer.cancel()
+            if (alterCoolDownJob.isActive)
+                alterCoolDownJob.cancel()
         } catch (ignored: Exception) {
         }
         //        SharedPrefs.setBoolean("isAlarmPlaying",false,this);
@@ -164,28 +159,4 @@ class ChargingMonitorService : Service() {
             stopService(Intent(this@ChargingMonitorService, ChargingMonitorService::class.java))
         }
     }
-
-/*    fun getBatHealth(): String {
-        return batHealth
-    }
-
-    fun getBatPercentage(): String {
-        return batPercentage
-    }
-
-    fun getBatVoltage(): String {
-        return batVoltage
-    }
-
-    fun getBatType(): String {
-        return batType
-    }
-
-    fun getBatChargingType(): String {
-        return batChargingType
-    }
-
-    fun getBatTemp(): String {
-        return batTemp
-    }*/
 }

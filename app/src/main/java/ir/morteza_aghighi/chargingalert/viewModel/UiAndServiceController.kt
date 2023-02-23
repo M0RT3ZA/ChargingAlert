@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
+import ir.morteza_aghighi.chargingalert.R
 import ir.morteza_aghighi.chargingalert.databinding.ActivityMainBinding
 import ir.morteza_aghighi.chargingalert.model.BatteryStatsModel
 import ir.morteza_aghighi.chargingalert.model.ChargingMonitorService
@@ -30,8 +31,8 @@ class UiAndServiceController {
     private val batteryStatsModel = BatteryStatsModel()
     private val batReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            binding.tvBatPercent.text =
-                batteryStatsModel.getBatPercentage()
+            binding.tvBatPercent.text = "${context.getString(R.string.batPercent)} ${batteryStatsModel.getBatPercentage()}"
+
             binding.tvBatVoltage.text =
                 batteryStatsModel.getBatVoltage()
             binding.tvBatHealth.text =

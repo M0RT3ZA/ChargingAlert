@@ -15,6 +15,10 @@ import android.view.WindowManager
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import ir.morteza_aghighi.chargingalert.model.BatteryStatsModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.flow
+import kotlin.time.Duration
 
 class AlertActivity : AppCompatActivity() {
     private lateinit var ringtone: MediaPlayer
@@ -40,8 +44,10 @@ class AlertActivity : AppCompatActivity() {
             RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
             ringtone = MediaPlayer.create(this, Settings.System.DEFAULT_ALARM_ALERT_URI)
             ringtone.start()
-            object : CountDownTimer(60000, 1000) {
-                override fun onTick(millisUntilFinished: Long) {}
+            object : CountDownTimer(6000, 1000) {
+                override fun onTick(millisUntilFinished: Long) {
+                    if (BatteryStatsModel().getBatChargingType() == "Unplugged") finish()
+                }
                 override fun onFinish() {
                     Toast.makeText(
                         this@AlertActivity,
@@ -54,27 +60,26 @@ class AlertActivity : AppCompatActivity() {
             }.start()
         } catch (ignored: Exception) {
         }
+        val flow = flow {
+            delay(Duration.ZERO)
+            while (true) {
+                emit(Unit)
+                delay(1000)
+            }
+        }
+
     }
 
     override fun onResume() {
         super.onResume()
-        val batIntentFilter = IntentFilter("android.intent.BATTERY_STATUS")
-        registerReceiver(batReceiver, batIntentFilter)
     }
 
     override fun onDestroy() {
         try {
             ringtone.release()
-            unregisterReceiver(batReceiver)
         } catch (ignored: Exception) {
         }
         super.onDestroy()
     }
 
-    private var batReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-        @SuppressLint("SetTextI18n")
-        override fun onReceive(context: Context, intent: Intent) {
-            if (intent.getStringExtra("BatChargingStat") == "Unknown") finish()
-        }
-    }
 }
