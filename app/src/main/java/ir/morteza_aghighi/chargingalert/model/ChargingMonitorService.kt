@@ -24,10 +24,10 @@ class ChargingMonitorService : Service() {
             setBoolean("isAlarmPlaying", false, this@ChargingMonitorService)
         }
     }
-    private var batteryHealth = "Good"
+    private var batHealth = "Good"
     private var batLevel = 0
-    private var batteryPercentage = "0%"
-    private var batteryVoltage = "0V"
+    private var batPercentage = "0%"
+    private var batVoltage = "0V"
     private var batType = "NaN"
     private var batChargingType = "AC"
     private var batTemp = "0°"
@@ -41,9 +41,9 @@ class ChargingMonitorService : Service() {
         override fun onReceive(context: Context, intent: Intent) {
             if (Intent.ACTION_BATTERY_CHANGED == intent.action) {
                 batLevel = intent.getIntExtra(" level ", 0)
-                batteryPercentage = "$batLevel%"
-                batteryVoltage = "${intent.getIntExtra("voltage", 0)}V"
-                batteryHealth = when (intent.getIntExtra("health", 0)) {
+                batPercentage = "$batLevel%"
+                batVoltage = "${intent.getIntExtra("voltage", 0)}V"
+                batHealth = when (intent.getIntExtra("health", 0)) {
                     BatteryManager.BATTERY_HEALTH_COLD -> "Cold"
                     BatteryManager.BATTERY_HEALTH_DEAD -> "Dead"
                     BatteryManager.BATTERY_HEALTH_GOOD -> "Good"
@@ -152,20 +152,20 @@ class ChargingMonitorService : Service() {
     companion object {
         const val CHANNEL_ID = "ForegroundServiceChannel"
     }
-    public fun getHealth(): String{
-        return batteryHealth
+    public fun getBatHealth(): String{
+        return batHealth
     }
     public fun getBatPercentage(): String{
-        return batteryPercentage
+        return batPercentage
     }
     public fun getBatVoltage(): String{
-        return batteryVoltage
+        return batVoltage
     }
     public fun getBatType(): String{
         return batType
     }
     public fun getBatChargingType(): String{
-        return batteryPercentage
+        return batPercentage
     }
     public fun getBatTemp(): String{
         return batTemp

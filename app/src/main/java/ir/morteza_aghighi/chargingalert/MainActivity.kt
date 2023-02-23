@@ -17,11 +17,12 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.suke.widget.SwitchButton
-import ir.morteza_aghighi.chargingalert.model.model.ChargingMonitorService
+import ir.morteza_aghighi.chargingalert.model.ChargingMonitorService
 import ir.morteza_aghighi.chargingalert.tools.QuestionDialog
 import ir.morteza_aghighi.chargingalert.tools.QuestionDialog.QuestionListener
 import ir.morteza_aghighi.chargingalert.tools.ServiceMonitor
 import ir.morteza_aghighi.chargingalert.tools.SharedPrefs
+import ir.morteza_aghighi.chargingalert.viewModel.UiStuff
 import me.tankery.lib.circularseekbar.CircularSeekBar
 import me.tankery.lib.circularseekbar.CircularSeekBar.OnCircularSeekBarChangeListener
 import java.text.DecimalFormat
@@ -269,14 +270,16 @@ class MainActivity : AppCompatActivity(), QuestionListener {
             }
         }
         val exitIntentFilter = IntentFilter("android.intent.CLOSE_ACTIVITY")
-        val batIntentFilter = IntentFilter("android.intent.BATTERY_STATUS")
+//        val batIntentFilter = IntentFilter("android.intent.BATTERY_STATUS")
         registerReceiver(exitReceiver, exitIntentFilter)
-        registerReceiver(batReceiver, batIntentFilter)
+//        registerReceiver(batReceiver, batIntentFilter)
+        UiStuff().readData(this)
     }
 
     override fun onDestroy() {
         unregisterReceiver(exitReceiver)
-        unregisterReceiver(batReceiver)
+//        unregisterReceiver(batReceiver)
+        UiStuff().unreadData(this)
         super.onDestroy()
     }
 
