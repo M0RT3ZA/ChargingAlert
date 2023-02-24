@@ -177,9 +177,13 @@ class MainActivity : AppCompatActivity(), QuestionListener {
         }
     }
 
+    override fun onRestart() {
+        super.onRestart()
+        UiAndServiceController(this, mainActivityBinding).readData()
+    }
+
     override fun onResume() {
         super.onResume()
-        UiAndServiceController(this, mainActivityBinding).readData()
     }
 
     override fun onDestroy() {

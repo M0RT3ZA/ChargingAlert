@@ -9,21 +9,13 @@ import android.os.BatteryManager
 import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
-import ir.morteza_aghighi.chargingalert.AlertActivity
 import ir.morteza_aghighi.chargingalert.MainActivity
 import ir.morteza_aghighi.chargingalert.R
-import ir.morteza_aghighi.chargingalert.tools.SharedPrefs.getBoolean
-import ir.morteza_aghighi.chargingalert.tools.SharedPrefs.getInt
 import ir.morteza_aghighi.chargingalert.tools.SharedPrefs.setBoolean
-import kotlinx.coroutines.*
 
 private const val CHANNEL_ID = "ForegroundServiceChannel"
 
 class ChargingMonitorService : Service() {
-    private val errorHandler = CoroutineExceptionHandler { _, throwable ->
-        throwable.printStackTrace()
-    }
-    val alterCoolDownJob = CoroutineScope(Dispatchers.Default + errorHandler)
     override fun onBind(intent: Intent): IBinder? {
         return null
     }
@@ -71,24 +63,6 @@ class ChargingMonitorService : Service() {
 
                 batteryStatsModel.setBatTemp("${intent.getIntExtra("temperature", -1) / 10}°C")
                 sendBroadcast(batteryStatus)
-                if (getBoolean("isAlertEnabled", context) &&
-                    batteryStatsModel.getBatChargingType() != "Unplugged" && getInt(
-                        "chargingLimit",
-                        context
-                    ) <= batteryStatsModel.getBatLevel() &&
-                    !getBoolean("isAlarmPlaying", context)
-                ) {
-                    setBoolean("isAlarmPlaying", true, context)
-                    startActivity(
-                        Intent(context, AlertActivity::class.java)
-                            .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                    )
-//                    alertCoolDownTimer.start()
-                    alterCoolDownJob.launch {
-                        delay(300000)
-                        setBoolean("isAlarmPlaying", false, this@ChargingMonitorService)
-                    }
-                }
             }
         }
     }
@@ -124,9 +98,7 @@ class ChargingMonitorService : Service() {
         try {
             unregisterReceiver(batteryReceiver)
             unregisterReceiver(exitSignalReceiver)
-//            alertCoolDownTimer.cancel()
-            if (alterCoolDownJob.isActive)
-                alterCoolDownJob.cancel()
+
         } catch (ignored: Exception) {
         }
         //        SharedPrefs.setBoolean("isAlarmPlaying",false,this);

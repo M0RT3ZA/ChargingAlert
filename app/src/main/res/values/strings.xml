@@ -11,5 +11,10 @@
     <string name="warning">Warning!</string>
     <string name="explenation">In android 10+ in order to show alert when Screen is off you need to give the \"Appear on Top\" permission.</string>
     <string name="explenationBattery">In order to let app not being killed in background please turn off Battery Optimization for  this app in settings.</string>
-    <string name="batPercent">Battery Charge:\n</string>
+    <string name="batPercent">Charge:\n</string>
+    <string name="batVoltage">Voltage:\n</string>
+    <string name="batHealth">Health:\n</string>
+    <string name="batType">Technology:\n</string>
+    <string name="batTemp">Temperature:\n</string>
+    <string name="batCharging">Charging:\n</string>
 </resources>
