@@ -72,8 +72,8 @@ class QuestionDialog(private val tittle: String, private val message: String) :
         d.setOnShowListener {
             //this disables outside touch
             try {
-                Objects.requireNonNull(d.window)!!.findViewById<View>(R.id.touch_outside)
-                    .setOnClickListener(null)
+                Objects.requireNonNull(d.window)?.findViewById<View>(R.id.touch_outside)
+                    ?.setOnClickListener(null)
                 //this prevents dragging behavior
                 val content = d.window!!.findViewById<View>(R.id.design_bottom_sheet)
                 (content.layoutParams as CoordinatorLayout.LayoutParams).behavior = null

@@ -1,6 +1,6 @@
 package ir.morteza_aghighi.chargingalert.model
 
-class BatteryStatsModel {
+class BatteryInfoModel {
     companion object {
         private var batLevel = 0
         private var batHealth = "Good"
@@ -15,55 +15,41 @@ class BatteryStatsModel {
         Companion.batHealth = batHealth
     }
 
-    fun getBatHealth(): String {
-        return batHealth
-    }
+    fun getBatHealth(): String = batHealth
 
     fun setBatPercentage(batPercentage: String) {
         Companion.batPercentage = batPercentage
     }
 
-    fun getBatPercentage(): String {
-        return batPercentage
-    }
+    fun getBatPercentage(): String = batPercentage
 
     fun setBatVoltage(batVoltage: String) {
         Companion.batVoltage = batVoltage
     }
 
-    fun getBatVoltage(): String {
-        return batVoltage
-    }
+    fun getBatVoltage(): String = batVoltage
 
     fun setBatType(batType: String) {
         Companion.batType = batType
     }
 
-    fun getBatType(): String {
-        return batType
-    }
+    fun getBatType(): String = batType
 
     fun setBatChargingType(batChargingType: String) {
         Companion.batChargingType = batChargingType
     }
 
-    fun getBatChargingType(): String {
-        return batChargingType
-    }
+    fun getBatChargingType(): String = batChargingType
 
     fun setBatTemp(batTemp: String) {
         Companion.batTemp = batTemp
     }
 
-    fun getBatTemp(): String {
-        return batTemp
-    }
+    fun getBatTemp(): String = batTemp
 
     fun setBatLevel(batLevel: Int) {
         Companion.batLevel = batLevel
     }
 
-    fun getBatLevel(): Int {
-        return batLevel
-    }
+    fun getBatLevel(): Int = batLevel
 }

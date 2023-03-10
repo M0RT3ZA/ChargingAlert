@@ -10,60 +10,53 @@ import android.os.Build
 import ir.morteza_aghighi.chargingalert.AlertActivity
 import ir.morteza_aghighi.chargingalert.R
 import ir.morteza_aghighi.chargingalert.databinding.ActivityMainBinding
-import ir.morteza_aghighi.chargingalert.model.BatteryStatsModel
+import ir.morteza_aghighi.chargingalert.model.BatteryInfoModel
 import ir.morteza_aghighi.chargingalert.model.ChargingMonitorService
 import ir.morteza_aghighi.chargingalert.tools.ServiceMonitor
 import ir.morteza_aghighi.chargingalert.tools.SharedPrefs
 import kotlinx.coroutines.*
 
-class UiAndServiceController {
-
-    private lateinit var activity: Activity
-    constructor(activity: Activity) : super() {
-        this.activity = activity
-    }
-
-    private lateinit var binding: ActivityMainBinding
-    constructor(activity: Activity, binding: ActivityMainBinding) : super() {
-        this.activity = activity
-        this.binding = binding
-    }
+class UiAndServiceController(
+    private var activity: Activity,
+    private var binding: ActivityMainBinding
+) {
 
     private val errorHandler = CoroutineExceptionHandler { _, throwable ->
         throwable.printStackTrace()
     }
-    val alterCoolDownJob = CoroutineScope(Dispatchers.Default + errorHandler)
+    val chargeAlterCoolDownJob = CoroutineScope(Dispatchers.Default + errorHandler)
+    val disChargeAlterCoolDownJob = CoroutineScope(Dispatchers.Default + errorHandler)
 
     private val batIntentFilter = IntentFilter("android.intent.BATTERY_STATUS")
     private val exitIntentFilter = IntentFilter("android.intent.CLOSE_ACTIVITY")
 
-    private val batteryStatsModel = BatteryStatsModel()
+    private val batteryInfoModel = BatteryInfoModel()
     private val batReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         @SuppressLint("SetTextI18n")
         override fun onReceive(context: Context, intent: Intent) {
             binding.tvBatPercent.text =
-                "${context.getString(R.string.batPercent)} ${batteryStatsModel.getBatPercentage()}"
+                "${context.getString(R.string.batPercent)}${batteryInfoModel.getBatPercentage()}"
 
             binding.tvBatVoltage.text =
-                "${context.getString(R.string.batVoltage)} ${batteryStatsModel.getBatVoltage()}"
+                "${context.getString(R.string.batVoltage)}${batteryInfoModel.getBatVoltage()}"
 
             binding.tvBatHealth.text =
-                "${context.getString(R.string.batHealth)} ${batteryStatsModel.getBatHealth()}"
+                "${context.getString(R.string.batHealth)}${batteryInfoModel.getBatHealth()}"
 
             binding.tvBatType.text =
-                "${context.getString(R.string.batType)} ${batteryStatsModel.getBatType()}"
+                "${context.getString(R.string.batType)}${batteryInfoModel.getBatType()}"
 
             binding.tvBatTemp.text =
-                "${context.getString(R.string.batTemp)} ${batteryStatsModel.getBatTemp()}"
+                "${context.getString(R.string.batTemp)}${batteryInfoModel.getBatTemp()}"
 
             binding.tvBatChargingStat.text =
-                "${context.getString(R.string.batCharging)} ${batteryStatsModel.getBatChargingType()}"
+                "${context.getString(R.string.batCharging)}${batteryInfoModel.getBatChargingType()}"
 
             if (SharedPrefs.getBoolean("isAlertEnabled", context) &&
-                batteryStatsModel.getBatChargingType() != "Unplugged" && SharedPrefs.getInt(
+                batteryInfoModel.getBatChargingType() != "Unplugged" && SharedPrefs.getInt(
                     "chargingLimit",
                     context
-                ) <= batteryStatsModel.getBatLevel() &&
+                ) <= batteryInfoModel.getBatLevel() &&
                 !SharedPrefs.getBoolean("isAlarmPlaying", context)
             ) {
                 SharedPrefs.setBoolean("isAlarmPlaying", true, context)
@@ -71,7 +64,26 @@ class UiAndServiceController {
                     Intent(context, AlertActivity::class.java)
                         .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
                 )
-                alterCoolDownJob.launch {
+                chargeAlterCoolDownJob.launch {
+                    delay(300000)
+                    SharedPrefs.setBoolean("isAlarmPlaying", false, context)
+                }
+            }
+            if (SharedPrefs.getBoolean("isAlertEnabled", context) &&
+                batteryInfoModel.getBatChargingType() == "Unplugged" && SharedPrefs.getInt(
+                    "disChargingLimit",
+                    context
+                ) >= batteryInfoModel.getBatLevel() &&
+                !SharedPrefs.getBoolean("isAlarmPlaying", context)
+            ) {
+                SharedPrefs.setBoolean("isAlarmPlaying", true, context)
+                context.startActivity(
+                    Intent(context, AlertActivity::class.java)
+                        .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+//                       true for discharge alert and false for charging alert
+                        .putExtra("alertType", true)
+                )
+                disChargeAlterCoolDownJob.launch {
                     delay(300000)
                     SharedPrefs.setBoolean("isAlarmPlaying", false, context)
                 }
@@ -99,11 +111,9 @@ class UiAndServiceController {
     }
 
     fun unreadData() {
-/*        try {
-*//*            activity.applicationContext.unregisterReceiver(batReceiver)
-            activity.applicationContext.unregisterReceiver(exitReceiver)*//*
-        }catch (ignored: java.lang.Exception){}*/
-        if (alterCoolDownJob.isActive)
-            alterCoolDownJob.cancel()
+        activity.applicationContext.unregisterReceiver(batReceiver)
+        activity.applicationContext.unregisterReceiver(exitReceiver)
+        if (chargeAlterCoolDownJob.isActive)
+            chargeAlterCoolDownJob.cancel()
     }
 }

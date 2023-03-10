@@ -66,9 +66,11 @@ android {
 }
 
 dependencies {
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.1'
-    implementation fileTree(dir: "libs", include: ["*.jar"])
+    implementation 'com.github.hyy920109:IOSProgressBar:v1.2.0'
+    implementation 'com.kyleduo.switchbutton:library:2.1.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
+//    implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
@@ -76,7 +78,5 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
-    implementation 'com.github.zcweng:switch-button:0.0.3@aar'
-    implementation 'me.tankery.lib:circularSeekBar:1.2.0'
     implementation 'com.google.android.material:material:1.8.0'
 }

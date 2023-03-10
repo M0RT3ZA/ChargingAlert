@@ -20,21 +20,21 @@ class ChargingMonitorService : Service() {
         return null
     }
 
-    private val batteryStatsModel = BatteryStatsModel()
+    private val batteryInfoModel = BatteryInfoModel()
     private var batIFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
     var batteryStatus = Intent("android.intent.BATTERY_STATUS")
     private var batteryReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (Intent.ACTION_BATTERY_CHANGED == intent.action) {
-                batteryStatsModel.setBatLevel(intent.getIntExtra("level", 0))
+                batteryInfoModel.setBatLevel(intent.getIntExtra("level", 0))
 
-                batteryStatsModel.setBatPercentage("${batteryStatsModel.getBatLevel()}%")
+                batteryInfoModel.setBatPercentage("${batteryInfoModel.getBatLevel()}%")
 
-                batteryStatsModel.setBatVoltage(
+                batteryInfoModel.setBatVoltage(
                     "${intent.getIntExtra("voltage", 0).toFloat() / 1000}V"
                 )
 
-                batteryStatsModel.setBatHealth(
+                batteryInfoModel.setBatHealth(
                     when (intent.getIntExtra("health", 0)) {
                         BatteryManager.BATTERY_HEALTH_COLD -> "Cold"
                         BatteryManager.BATTERY_HEALTH_DEAD -> "Dead"
@@ -48,10 +48,10 @@ class ChargingMonitorService : Service() {
                     }
                 )
 
-                batteryStatsModel.setBatType(intent.getStringExtra("technology").toString())
+                batteryInfoModel.setBatType(intent.getStringExtra("technology").toString())
 
                 val chargingType = intent.getIntExtra("plugged", -1)
-                batteryStatsModel.setBatChargingType(
+                batteryInfoModel.setBatChargingType(
                     when (chargingType) {
                         BatteryManager.BATTERY_PLUGGED_AC -> "AC"
                         BatteryManager.BATTERY_PLUGGED_USB -> "USB"
@@ -61,7 +61,7 @@ class ChargingMonitorService : Service() {
                     }
                 )
 
-                batteryStatsModel.setBatTemp("${intent.getIntExtra("temperature", -1) / 10}°C")
+                batteryInfoModel.setBatTemp("${intent.getIntExtra("temperature", -1) / 10}°C")
                 sendBroadcast(batteryStatus)
             }
         }

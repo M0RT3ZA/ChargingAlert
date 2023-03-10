@@ -1,73 +1,243 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity"
-    android:nestedScrollingEnabled="false">
+    android:nestedScrollingEnabled="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/clTVs"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginStart="12dp"
-        android:layout_marginEnd="12dp"
-        android:id="@+id/clLimiting"
-        app:layout_constraintVertical_chainStyle="spread_inside">
-        <me.tankery.lib.circularseekbar.CircularSeekBar
-            android:id="@+id/limitCircle"
-            android:layout_width="wrap_content"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintDimensionRatio="1"
-            app:cs_circle_color="@color/VeryLightGreen"
-            app:cs_circle_progress_color="@color/Green"
-            app:cs_circle_stroke_width="@dimen/circleStroke"
-            app:cs_end_angle="45"
-            app:cs_max="95"
-            app:cs_move_outside_circle="true"
-            app:cs_pointer_color="@color/Green"
-            app:cs_pointer_halo_color_ontouch="@color/LightGreen"
-            app:cs_pointer_stroke_width="@dimen/circlePointer"
-            app:cs_progress="0"
-            app:cs_start_angle="135"
+            android:id="@+id/clTVs"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/tvChargeThresholdTitle"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintVertical_chainStyle="packed">
+
+            <TextView
+                android:textColor="@color/white"
+                android:id="@+id/tvBatPercent"
+                tools:text="tvBatPercent"
+                android:textSize="22sp"
+                android:gravity="center_vertical"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/tvBatVoltage"
+                app:layout_constraintBottom_toTopOf="@+id/tvBatHealth"
+                app:layout_constraintHorizontal_chainStyle="spread"/>
+
+            <TextView
+                android:textColor="@color/white"
+                android:id="@+id/tvBatVoltage"
+                tools:text="tvBatVoltage"
+                android:layout_width="0dp"
+                android:textSize="22sp"
+                android:gravity="center_vertical"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toEndOf="@id/tvBatPercent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/tvBatType"/>
+
+            <TextView
+                android:textColor="@color/white"
+                android:id="@+id/tvBatHealth"
+                tools:text="tvBatHealth"
+                android:layout_width="0dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="4dp"
+                android:textSize="22sp"
+                android:gravity="center_vertical"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvBatPercent"
+                app:layout_constraintEnd_toStartOf="@+id/tvBatType"
+                app:layout_constraintBottom_toTopOf="@+id/tvBatChargingStat"/>
+
+            <TextView
+                android:id="@+id/tvBatType"
+                android:layout_width="0dp"
+                android:gravity="center_vertical"
+                android:layout_height="wrap_content"
+                android:textSize="22sp"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="4dp"
+                android:textColor="@color/white"
+                app:layout_constraintBottom_toTopOf="@id/tvBatTemp"
+                app:layout_constraintStart_toEndOf="@+id/tvBatHealth"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvBatVoltage"
+                tools:text="tvBatType" />
+
+            <TextView
+                android:id="@+id/tvBatChargingStat"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:textSize="22sp"
+                android:textColor="@color/white"
+                app:layout_constraintEnd_toStartOf="@+id/tvBatTemp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvBatHealth"
+                tools:text="tvBatChargingStat" />
+
+            <TextView
+                android:id="@+id/tvBatTemp"
+                android:layout_width="0dp"
+                android:gravity="center_vertical"
+                android:layout_height="wrap_content"
+                android:textSize="22sp"
+                android:textColor="@color/white"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/tvBatChargingStat"
+                app:layout_constraintTop_toBottomOf="@+id/tvBatType"
+                tools:text="tvBatTemp" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <TextView
-            android:id="@+id/tvThreshold"
             android:layout_width="0dp"
-            android:textSize="64sp"
             android:layout_height="wrap_content"
-            android:textAlignment="center"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:id="@+id/tvChargeThresholdTitle"
+            android:textColor="@color/white"
+            android:text="@string/chargeTitle"
+            android:textSize="22sp"
+            android:layout_marginTop="8dp"
             app:layout_constraintStart_toStartOf="parent"
-            tools:text="5%"
-            android:textStyle="bold"
-            android:fontFamily="@font/iranian_sans"
-            android:textColor="@color/white"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/clTVs"
+            app:layout_constraintBottom_toTopOf="@+id/iosPbChargeThreshold"
+            />
+        <ir.morteza_aghighi.chargingalert.tools.IOSProgressBar
+            android:id="@+id/iosPbChargeThreshold"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            app:ipb_conner_radius="22dp"
+            app:ipb_progress_color="@color/Green"
+            app:ipb_background_color="@color/LightGreen"
+            app:ipb_progress_show_text="true"
+            app:ipb_progress_text_color="@color/white"
+            app:ipb_progress_text_size="28sp"
+            app:ipb_progress_bar_orientation="horizontal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvChargeThresholdTitle"
+            app:layout_constraintBottom_toTopOf="@id/tvDischargeThresholdTitle"/>
 
         <TextView
-            android:id="@+id/tvThresholdTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
-            android:layout_marginEnd="24dp"
-            android:textAlignment="center"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:id="@+id/tvDischargeThresholdTitle"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/white"
+            android:text="@string/chargeTitle"
+            android:textSize="22sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/btnChargingAlert"
-            android:text="@string/set_the_threshold_for_alert"
-            tools:text="Set the Threshold for Alert"
-            android:fontFamily="@font/iranian_sans"
-            android:textColor="@color/white"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/iosPbChargeThreshold"
+            app:layout_constraintBottom_toTopOf="@+id/iosPbDischargeThreshold"/>
+        <ir.morteza_aghighi.chargingalert.tools.IOSProgressBar
+            android:id="@+id/iosPbDischargeThreshold"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            app:ipb_conner_radius="22dp"
+            app:ipb_progress_color="@color/Green"
+            app:ipb_background_color="@color/LightGreen"
+            app:ipb_progress_show_text="true"
+            app:ipb_progress_text_color="@color/white"
+            app:ipb_progress_text_size="28sp"
+            app:ipb_progress_bar_orientation="horizontal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvDischargeThresholdTitle"
+            app:layout_constraintBottom_toTopOf="@id/tvVolumeTitle"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/tvVolumeTitle"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/white"
+            android:text="@string/volumeTitle"
+            android:textSize="22sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/iosPbDischargeThreshold"
+            app:layout_constraintBottom_toTopOf="@+id/iosPbVolume"/>
+        <ir.morteza_aghighi.chargingalert.tools.IOSProgressBar
+            android:id="@+id/iosPbVolume"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            app:ipb_conner_radius="22dp"
+            app:ipb_progress_color="@color/Green"
+            app:ipb_background_color="@color/LightGreen"
+            app:ipb_progress_show_text="false"
+            app:ipb_progress_text_color="@color/white"
+            app:ipb_progress_text_size="28sp"
+            app:ipb_progress_bar_orientation="horizontal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvVolumeTitle"
+            app:layout_constraintBottom_toTopOf="@id/swDND"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/tvIgnoreDNDTitle"
+            android:layout_marginEnd="12dp"
+            android:textColor="@color/white"
+            android:text="@string/ignoreDND"
+            android:textSize="22sp"
+            app:layout_constraintTop_toTopOf="@+id/swDND"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="@+id/swDND"
+            app:layout_constraintEnd_toStartOf="@+id/swDND"/>
+        <com.kyleduo.switchbutton.SwitchButton
+            android:id="@+id/swDND"
+            android:layout_width="72dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="4dp"
+            app:layout_constraintTop_toBottomOf="@+id/iosPbVolume"
+            app:layout_constraintBottom_toTopOf="@id/swBoot"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/tvIgnoreDNDTitle"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/tvAutoStartTitle"
+            android:layout_marginEnd="12dp"
+            android:textColor="@color/white"
+            android:text="@string/boot_up_switch"
+            android:textSize="22sp"
+            app:layout_constraintBottom_toBottomOf="@id/swBoot"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/swBoot"
+            app:layout_constraintEnd_toStartOf="@+id/swBoot"/>
+        <com.kyleduo.switchbutton.SwitchButton
+            android:id="@+id/swBoot"
+            android:layout_width="72dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="4dp"
+            app:layout_constraintTop_toBottomOf="@+id/swDND"
+            app:layout_constraintBottom_toTopOf="@+id/btnChargingAlert"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/tvAutoStartTitle"/>
 
         <Button
             android:layout_width="wrap_content"
@@ -76,151 +246,17 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/swBoot"
+            android:layout_marginTop="8dp"
             android:text="@string/enable_charging_alert"
             android:textColor="@color/white"
             android:background="@drawable/custom_ripple_confirm"
-            android:fontFamily="@font/iranian_sans"
-            android:textAlignment="center"
+            android:gravity="center"
             android:paddingTop="2dp"
             android:paddingStart="6dp"
             android:paddingEnd="6dp"
             android:textAllCaps="false"/>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/clTVs"
-            app:layout_constraintBottom_toTopOf="@+id/llAutoStart"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/clLimiting">
-
-            <TextView
-                android:fontFamily="@font/iranian_sans"
-                android:textColor="@color/white"
-                android:id="@+id/tvBatPercent"
-                tools:text="tvBatPercent"
-                android:layout_marginStart="8dp"
-                android:textAlignment="center"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/tvBatVoltage"
-                app:layout_constraintEnd_toStartOf="@+id/tvBatVoltage"
-                app:layout_constraintBottom_toTopOf="@+id/tvBatType"
-                app:layout_constraintHorizontal_chainStyle="spread"/>
-
-            <TextView
-                android:fontFamily="@font/iranian_sans"
-                android:textColor="@color/white"
-                android:id="@+id/tvBatVoltage"
-                tools:text="tvBatVoltage"
-                android:layout_width="0dp"
-                android:layout_marginStart="4dp"
-                android:textAlignment="center"
-                android:layout_height="wrap_content"
-                app:layout_constraintStart_toEndOf="@id/tvBatPercent"
-                app:layout_constraintEnd_toStartOf="@+id/tvBatHealth"
-                app:layout_constraintTop_toTopOf="@+id/tvBatHealth"
-                app:layout_constraintBottom_toTopOf="@+id/tvBatChargingStat"/>
-
-            <TextView
-                android:fontFamily="@font/iranian_sans"
-                android:textColor="@color/white"
-                android:id="@+id/tvBatHealth"
-                tools:text="tvBatHealth"
-                android:layout_width="0dp"
-                android:textAlignment="center"
-                android:layout_marginStart="4dp"
-                android:layout_marginEnd="8dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/tvBatPercent"
-                app:layout_constraintStart_toEndOf="@+id/tvBatVoltage"
-                app:layout_constraintBottom_toTopOf="@+id/tvBatTemp"/>
-
-            <TextView
-                android:id="@+id/tvBatType"
-                android:layout_width="0dp"
-                android:textAlignment="center"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginStart="8dp"
-                android:fontFamily="@font/iranian_sans"
-                android:textColor="@color/white"
-                app:layout_constraintBottom_toBottomOf="@id/tvBatChargingStat"
-                app:layout_constraintEnd_toStartOf="@+id/tvBatChargingStat"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tvBatPercent"
-                tools:text="tvBatType" />
-
-            <TextView
-                android:id="@+id/tvBatChargingStat"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:textAlignment="center"
-                android:layout_marginTop="8dp"
-                android:layout_marginStart="4dp"
-                android:fontFamily="@font/iranian_sans"
-                android:textColor="@color/white"
-                app:layout_constraintEnd_toStartOf="@+id/tvBatTemp"
-                app:layout_constraintBottom_toBottomOf="@id/tvBatTemp"
-                app:layout_constraintStart_toEndOf="@+id/tvBatType"
-                app:layout_constraintTop_toBottomOf="@+id/tvBatVoltage"
-                tools:text="tvBatChargingStat" />
-
-            <TextView
-                android:id="@+id/tvBatTemp"
-                android:layout_width="0dp"
-                android:textAlignment="center"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginStart="4dp"
-                android:layout_marginEnd="8dp"
-                android:fontFamily="@font/iranian_sans"
-                android:textColor="@color/white"
-                app:layout_constraintBottom_toBottomOf="@id/tvBatType"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/tvBatChargingStat"
-                app:layout_constraintTop_toBottomOf="@+id/tvBatHealth"
-                tools:text="tvBatTemp" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <LinearLayout
-        android:id="@+id/llAutoStart"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
-        android:gravity="center"
-        android:orientation="horizontal"
-        app:layout_constraintTop_toBottomOf="@+id/clTVs"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="12dp"
-            android:fontFamily="@font/iranian_sans"
-            android:textColor="@color/white"
-            android:text="@string/boot_up_switch"
-            android:textSize="24sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <com.suke.widget.SwitchButton
-            android:id="@+id/swBoot"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:sb_checked_color="@color/Green"/>
-
-    </LinearLayout>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

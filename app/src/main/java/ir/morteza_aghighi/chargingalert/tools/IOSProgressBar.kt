@@ -45,11 +45,11 @@ class IOSProgressBar constructor(context: Context, attributeSet: AttributeSet?) 
     private var showProgressText: Boolean
 
     //define paints
-    private val progressPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+    val progressPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
     }
 
-    private val backgroundPaint =
+    val backgroundPaint =
         Paint(Paint.ANTI_ALIAS_FLAG).apply {
             style = Paint.Style.FILL
         }

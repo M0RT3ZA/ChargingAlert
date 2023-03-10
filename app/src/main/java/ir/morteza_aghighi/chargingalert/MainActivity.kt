@@ -2,6 +2,9 @@ package ir.morteza_aghighi.chargingalert
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.media.AudioManager
+import android.media.MediaPlayer
+import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -10,25 +13,30 @@ import android.os.PowerManager
 import android.provider.Settings
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.suke.widget.SwitchButton
 import ir.morteza_aghighi.chargingalert.databinding.ActivityMainBinding
+import ir.morteza_aghighi.chargingalert.model.BatteryInfoModel
 import ir.morteza_aghighi.chargingalert.tools.QuestionDialog
 import ir.morteza_aghighi.chargingalert.tools.QuestionDialog.QuestionListener
 import ir.morteza_aghighi.chargingalert.tools.SharedPrefs
+import ir.morteza_aghighi.chargingalert.tools.ToastMaker
 import ir.morteza_aghighi.chargingalert.viewModel.UiAndServiceController
-import me.tankery.lib.circularseekbar.CircularSeekBar
-import me.tankery.lib.circularseekbar.CircularSeekBar.OnCircularSeekBarChangeListener
+import kotlin.math.roundToInt
 
 // code to post/handler request for permission
 private const val OVERLAY_REQUEST_CODE = 69
 private const val BATTERY_OPTIMIZATION_REQUEST_CODE = 70
+
 class MainActivity : AppCompatActivity(), QuestionListener {
     private var questionDialog: QuestionDialog? = null
-
-
+    private lateinit var audioManager: AudioManager
+    private var currentVolume = 0
+    private lateinit var mediaPlayer: MediaPlayer
     private val overlayTag = "overlayTag"
     private val batteryOptimizationTag = "batteryOptimizationTag"
     private lateinit var mainActivityBinding: ActivityMainBinding
+    private lateinit var uiAndServiceController: UiAndServiceController
+    private lateinit var cancelTimer: CountDownTimer
+
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,8 +56,7 @@ class MainActivity : AppCompatActivity(), QuestionListener {
             val pm = getSystemService(POWER_SERVICE) as PowerManager
             if (!pm.isIgnoringBatteryOptimizations(packageName)) {
                 questionDialog = QuestionDialog(
-                    getString(R.string.warning),
-                    getString(R.string.explenationBattery)
+                    getString(R.string.warning), getString(R.string.explenationBattery)
                 )
                 questionDialog!!.isCancelable = false
                 questionDialog!!.show(supportFragmentManager, batteryOptimizationTag)
@@ -79,30 +86,89 @@ class MainActivity : AppCompatActivity(), QuestionListener {
             w.navigationBarColor = ContextCompat.getColor(this, R.color.activity_background)
         }
         val btnChargingAlert = mainActivityBinding.btnChargingAlert
-        val csbPT = mainActivityBinding.limitCircle
-        val tvThreshold = mainActivityBinding.tvThreshold
-        tvThreshold.text = SharedPrefs.getInt("chargingLimit", this).toString() + "%"
-        csbPT.progress = (SharedPrefs.getInt("chargingLimit", this) - 5).toFloat()
+        val iosPbChargeThreshold = mainActivityBinding.iosPbChargeThreshold
+        val iosPbDischargeThreshold = mainActivityBinding.iosPbDischargeThreshold
+        val iosPbVolume = mainActivityBinding.iosPbVolume
+        val swBoot = mainActivityBinding.swBoot
+        val swDND = mainActivityBinding.swDND
+        swBoot.apply {
+//            this.setEnableEffect(true) //disable the switch animation
+            this.setOnCheckedChangeListener { _, isChecked ->
+                SharedPrefs.setBoolean(
+                    "bootFlag", isChecked, this@MainActivity
+                )
+            }
+        }
+
+        swDND.apply {
+            //            this.setEnableEffect(true) //disable the switch animation
+            this.setOnCheckedChangeListener { _, isChecked ->
+                SharedPrefs.setBoolean(
+                    "bypassDND", isChecked, this@MainActivity
+                )
+            }
+        }
         if (SharedPrefs.getBoolean("isAlertEnabled", this)) {
             btnChargingAlert.background =
                 ContextCompat.getDrawable(this, R.drawable.custom_ripple_reject)
             btnChargingAlert.text = resources.getString(R.string.disable_charging_alert)
-            tvThreshold.setTextColor(getColor(R.color.white))
-            csbPT.isEnabled = true
-            csbPT.circleProgressColor = getColor(R.color.Green)
-            csbPT.circleColor = getColor(R.color.VeryLightGreen)
-            csbPT.pointerColor = getColor(R.color.Green)
-            csbPT.pointerHaloColor = getColor(R.color.VeryLightGreen)
+            iosPbChargeThreshold.apply {
+                this.isEnabled = true
+                this.progressPaint.color = getColor(R.color.Green)
+                this.backgroundPaint.color = getColor(R.color.LightGreen)
+                this.getProgress()
+            }
+            iosPbDischargeThreshold.apply {
+                this.isEnabled = true
+                this.progressPaint.color = getColor(R.color.Green)
+                this.backgroundPaint.color = getColor(R.color.LightGreen)
+                this.getProgress()
+            }
+            iosPbVolume.apply {
+                this.isEnabled = true
+                this.progressPaint.color = getColor(R.color.Green)
+                this.backgroundPaint.color = getColor(R.color.LightGreen)
+                this.getProgress()
+            }
+            swBoot.apply {
+                this.isEnabled = true
+                this.setCheckedNoEvent(SharedPrefs.getBoolean("bootFlag", this@MainActivity))
+            }
+            swDND.apply {
+                this.isEnabled = true
+                this.setCheckedNoEvent(SharedPrefs.getBoolean("bypassDND", this@MainActivity))
+            }
         } else {
             btnChargingAlert.background =
                 ContextCompat.getDrawable(this, R.drawable.custom_ripple_confirm)
             btnChargingAlert.text = resources.getString(R.string.enable_charging_alert)
-            tvThreshold.setTextColor(getColor(R.color.color_light_gray))
-            csbPT.isEnabled = false
-            csbPT.circleProgressColor = getColor(R.color.color_dark_gray)
-            csbPT.circleColor = getColor(R.color.color_light_gray)
-            csbPT.pointerColor = getColor(R.color.color_dark_gray)
-            csbPT.pointerHaloColor = getColor(R.color.color_light_gray)
+            iosPbChargeThreshold.apply {
+                this.isEnabled = false
+                this.progressPaint.color = getColor(R.color.gray)
+                this.backgroundPaint.color = getColor(R.color.light_gray)
+                this.getProgress()
+            }
+            iosPbDischargeThreshold.apply {
+                this.isEnabled = false
+                this.progressPaint.color = getColor(R.color.gray)
+                this.backgroundPaint.color = getColor(R.color.light_gray)
+                this.getProgress()
+            }
+            iosPbVolume.apply {
+                this.isEnabled = false
+                this.progressPaint.color = getColor(R.color.gray)
+                this.backgroundPaint.color = getColor(R.color.light_gray)
+                this.getProgress()
+            }
+            swBoot.apply {
+                this.isEnabled = false
+                this.setCheckedNoEvent(false)
+            }
+            swBoot.isChecked = false
+            swDND.apply {
+                this.isEnabled = false
+                this.setCheckedNoEvent(false)
+            }
         }
         btnChargingAlert.setOnClickListener {
             if (SharedPrefs.getBoolean("isAlertEnabled", this@MainActivity)) {
@@ -110,23 +176,64 @@ class MainActivity : AppCompatActivity(), QuestionListener {
                 btnChargingAlert.background =
                     ContextCompat.getDrawable(this@MainActivity, R.drawable.custom_ripple_confirm)
                 btnChargingAlert.text = resources.getString(R.string.enable_charging_alert)
-                tvThreshold.setTextColor(getColor(R.color.color_light_gray))
-                csbPT.isEnabled = false
-                csbPT.circleProgressColor = getColor(R.color.color_dark_gray)
-                csbPT.circleColor = getColor(R.color.color_light_gray)
-                csbPT.pointerColor = getColor(R.color.color_dark_gray)
-                csbPT.pointerHaloColor = getColor(R.color.color_light_gray)
+                iosPbChargeThreshold.apply {
+                    this.isEnabled = false
+                    this.progressPaint.color = getColor(R.color.gray)
+                    this.backgroundPaint.color = getColor(R.color.light_gray)
+                    this.getProgress()
+                }
+                iosPbDischargeThreshold.apply {
+                    this.isEnabled = false
+                    this.progressPaint.color = getColor(R.color.gray)
+                    this.backgroundPaint.color = getColor(R.color.light_gray)
+                    this.getProgress()
+                }
+                iosPbVolume.apply {
+                    this.isEnabled = false
+                    this.progressPaint.color = getColor(R.color.gray)
+                    this.backgroundPaint.color = getColor(R.color.light_gray)
+                    this.getProgress()
+                }
+                swBoot.apply {
+                    this.isEnabled = false
+                    this.setCheckedNoEvent(false)
+                }
+                swBoot.isChecked = false
+                swDND.apply {
+                    this.isEnabled = false
+                    this.setCheckedNoEvent(false)
+                }
             } else {
                 SharedPrefs.setBoolean("isAlertEnabled", true, this@MainActivity)
                 btnChargingAlert.background =
                     ContextCompat.getDrawable(this@MainActivity, R.drawable.custom_ripple_reject)
                 btnChargingAlert.text = resources.getString(R.string.disable_charging_alert)
-                tvThreshold.setTextColor(getColor(R.color.white))
-                csbPT.isEnabled = true
-                csbPT.circleProgressColor = getColor(R.color.Green)
-                csbPT.circleColor = getColor(R.color.VeryLightGreen)
-                csbPT.pointerColor = getColor(R.color.Green)
-                csbPT.pointerHaloColor = getColor(R.color.VeryLightGreen)
+                iosPbChargeThreshold.apply {
+                    this.isEnabled = true
+                    this.progressPaint.color = getColor(R.color.Green)
+                    this.backgroundPaint.color = getColor(R.color.LightGreen)
+                    this.getProgress()
+                }
+                iosPbDischargeThreshold.apply {
+                    this.isEnabled = true
+                    this.progressPaint.color = getColor(R.color.Green)
+                    this.backgroundPaint.color = getColor(R.color.LightGreen)
+                    this.getProgress()
+                }
+                iosPbVolume.apply {
+                    this.isEnabled = true
+                    this.progressPaint.color = getColor(R.color.Green)
+                    this.backgroundPaint.color = getColor(R.color.LightGreen)
+                    this.getProgress()
+                }
+                swBoot.apply {
+                    this.isEnabled = true
+                    this.setCheckedNoEvent(SharedPrefs.getBoolean("bootFlag", this@MainActivity))
+                }
+                swDND.apply {
+                    this.isEnabled = true
+                    this.setCheckedNoEvent(SharedPrefs.getBoolean("bypassDND", this@MainActivity))
+                }
             }
         }
         val coolDownTimer: CountDownTimer = object : CountDownTimer(5000, 1000) {
@@ -135,59 +242,109 @@ class MainActivity : AppCompatActivity(), QuestionListener {
                 SharedPrefs.setBoolean("isAlertEnabled", true, this@MainActivity)
             }
         }
-        csbPT.setOnSeekBarChangeListener(object : OnCircularSeekBarChangeListener {
-            override fun onProgressChanged(
-                circularSeekBar: CircularSeekBar,
-                progress: Float,
-                fromUser: Boolean
-            ) {
-                if (fromUser) {
-                    tvThreshold.text = (progress.toInt() + 5).toString() + "%"
-                    SharedPrefs.setInt("chargingLimit", progress.toInt() + 5, this@MainActivity)
-                }
-            }
 
-            override fun onStopTrackingTouch(seekBar: CircularSeekBar) {
-                coolDownTimer.start()
+        audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
+        RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+        currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+        mediaPlayer = MediaPlayer.create(this, Settings.System.DEFAULT_ALARM_ALERT_URI)
+        cancelTimer = object : CountDownTimer(5000, 1000) {
+            override fun onTick(millisUntilFinished: Long) {}
+            override fun onFinish() {
+                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, currentVolume, 0)
+                mediaPlayer.release()
+                mediaPlayer =
+                    MediaPlayer.create(applicationContext, Settings.System.DEFAULT_ALARM_ALERT_URI)
             }
-
-            override fun onStartTrackingTouch(seekBar: CircularSeekBar) {
-                try {
-                    coolDownTimer.cancel()
-                } catch (ignored: Exception) {
-                }
-                SharedPrefs.setBoolean("isAlertEnabled", false, this@MainActivity)
-            }
-        })
-
-        val swBoot = mainActivityBinding.swBoot
-        if (SharedPrefs.getBoolean("bootFlag", this@MainActivity)) swBoot.isChecked =
-            true //Turn on switch if startup flag is true
-        swBoot.toggle() //switch state
-        swBoot.toggle(true) //switch without animation
-        swBoot.setShadowEffect(true) //disable shadow effect
-        swBoot.isEnabled = true //disable button
-        swBoot.setEnableEffect(true) //disable the switch animation
-        swBoot.setOnCheckedChangeListener { _: SwitchButton?, isChecked: Boolean ->
-            SharedPrefs.setBoolean(
-                "bootFlag",
-                isChecked,
-                this@MainActivity
-            )
         }
-    }
 
-    override fun onRestart() {
-        super.onRestart()
-        UiAndServiceController(this, mainActivityBinding).readData()
+        iosPbChargeThreshold.setProgress(SharedPrefs.getInt("chargingLimit", applicationContext))
+        iosPbChargeThreshold.setOnProgressChangeListener { iosProgressBar, progress, maxProgress, minProgress, actionUp ->
+            if (actionUp)
+                if (SharedPrefs.getInt("disChargingLimit", applicationContext) < progress)
+                    SharedPrefs.setInt("chargingLimit", progress, applicationContext)
+            else {
+                ToastMaker(applicationContext, getString(R.string.lowerAlert), true).msg()
+                    iosPbChargeThreshold.setProgress(iosPbDischargeThreshold.getProgress() + 1)
+                    SharedPrefs.setInt("chargingLimit", iosPbDischargeThreshold.getProgress() + 1, applicationContext)
+            }
+        }
+
+        iosPbDischargeThreshold.setProgress(SharedPrefs.getInt("disChargingLimit", applicationContext))
+        iosPbDischargeThreshold.setOnProgressChangeListener { iosProgressBar, progress, maxProgress, minProgress, actionUp ->
+            if (actionUp)
+                if (SharedPrefs.getInt("chargingLimit", applicationContext) > progress)
+                    SharedPrefs.setInt("disChargingLimit", progress, applicationContext)
+            else {
+                ToastMaker(applicationContext, getString(R.string.lowerAlert), true).msg()
+                    iosPbDischargeThreshold.setProgress(iosPbChargeThreshold.getProgress() - 1)
+                    SharedPrefs.setInt("disChargingLimit", iosPbChargeThreshold.getProgress() - 1, applicationContext)
+            }
+        }
+        iosPbVolume.maxProgress =
+            audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) * 10
+        iosPbVolume.minProgress = 0
+        iosPbVolume.setProgress(SharedPrefs.getInt("volume", applicationContext) * 10)
+        iosPbVolume.setOnProgressChangeListener { _, progress, _, _, actionUp ->
+            if (actionUp) {
+                SharedPrefs.setInt("volume", (progress / 10F).roundToInt(), applicationContext)
+                if (!mediaPlayer.isPlaying) {
+                    currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+                    mediaPlayer = MediaPlayer.create(
+                        applicationContext,
+                        Settings.System.DEFAULT_ALARM_ALERT_URI
+                    )
+                    mediaPlayer.setVolume(
+                        SharedPrefs.getInt("volume", applicationContext)
+                            .toFloat() / iosPbVolume.maxProgress,
+                        SharedPrefs.getInt("volume", applicationContext)
+                            .toFloat() / iosPbVolume.maxProgress
+                    )
+                    audioManager.setStreamVolume(
+                        AudioManager.STREAM_MUSIC,
+                        audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC),
+                        0
+                    )
+                    mediaPlayer.start()
+                    cancelTimer.start()
+                } else {
+                    currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+                    cancelTimer.cancel()
+                    mediaPlayer.release()
+                    mediaPlayer = MediaPlayer.create(
+                        applicationContext,
+                        Settings.System.DEFAULT_ALARM_ALERT_URI
+                    )
+                    mediaPlayer.setVolume(
+                        SharedPrefs.getInt("volume", applicationContext)
+                            .toFloat() / iosPbVolume.maxProgress,
+                        SharedPrefs.getInt("volume", applicationContext)
+                            .toFloat() / iosPbVolume.maxProgress
+                    )
+                    audioManager.setStreamVolume(
+                        AudioManager.STREAM_MUSIC,
+                        audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC),
+                        0
+                    )
+                    mediaPlayer.start()
+                    cancelTimer.start()
+                }
+            }
+        }
+
+        uiAndServiceController = UiAndServiceController(this, mainActivityBinding)
+        uiAndServiceController.readData()
     }
 
     override fun onResume() {
         super.onResume()
+        reloadUI()
     }
 
     override fun onDestroy() {
-        UiAndServiceController(this).unreadData()
+        cancelTimer.cancel()
+        mediaPlayer.release()
+        currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+        uiAndServiceController.unreadData()
         super.onDestroy()
     }
 
@@ -209,9 +366,29 @@ class MainActivity : AppCompatActivity(), QuestionListener {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == OVERLAY_REQUEST_CODE) batteryOptimizationRequest() else if (requestCode == BATTERY_OPTIMIZATION_REQUEST_CODE) SharedPrefs.setBoolean(
-            "isBatteryOptimizationAsked",
-            true,
-            this@MainActivity
+            "isBatteryOptimizationAsked", true, this@MainActivity
         )
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun reloadUI() {
+        val batteryInfoModel = BatteryInfoModel()
+        mainActivityBinding.tvBatPercent.text =
+            "${getString(R.string.batPercent)}${batteryInfoModel.getBatPercentage()}"
+
+        mainActivityBinding.tvBatVoltage.text =
+            "${getString(R.string.batVoltage)}${batteryInfoModel.getBatVoltage()}"
+
+        mainActivityBinding.tvBatHealth.text =
+            "${getString(R.string.batHealth)}${batteryInfoModel.getBatHealth()}"
+
+        mainActivityBinding.tvBatType.text =
+            "${getString(R.string.batType)}${batteryInfoModel.getBatType()}"
+
+        mainActivityBinding.tvBatTemp.text =
+            "${getString(R.string.batTemp)}${batteryInfoModel.getBatTemp()}"
+
+        mainActivityBinding.tvBatChargingStat.text =
+            "${getString(R.string.batCharging)}${batteryInfoModel.getBatChargingType()}"
     }
 }

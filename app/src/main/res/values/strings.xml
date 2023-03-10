@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Charging Alert</string>
-    <string name="boot_up_switch">Auto Start Service on Boot</string>
+    <string name="boot_up_switch">Auto Start Service on Boot:</string>
     <string name="enable_charging_alert">Enable Charging Alert</string>
     <string name="disable_charging_alert">Disable Charging Alert</string>
     <string name="set_the_threshold_for_alert">Set Threshold for the Alert</string>
@@ -17,4 +17,11 @@
     <string name="batType">Technology:\n</string>
     <string name="batTemp">Temperature:\n</string>
     <string name="batCharging">Charging:\n</string>
+    <string name="chargeTitle">Maximum Charge threshold to trigger the alert:</string>
+    <string name="disChargeTitle">Minimum Charge threshold to trigger the alert:</string>
+    <string name="volumeTitle">Alert Volume:</string>
+    <string name="ignoreDND">Ignore DND:</string>
+    <string name="lowerAlert">Can not set Charging limit lower than discharging limit!</string>
+    <string name="chargeDismissMessage">You will be alerted after 5 minutes if your phone is still on Charger.</string>
+    <string name="disChargeDismissMessage">You will be alerted after 5 minutes if your phone is still on Battery.</string>
 </resources>
