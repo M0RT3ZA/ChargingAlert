@@ -25,7 +25,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/tvChargeThresholdTitle"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_chainStyle="packed">
+            app:layout_constraintVertical_chainStyle="spread">
 
             <TextView
                 android:textColor="@color/white"
@@ -124,7 +124,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toTopOf="@+id/iosPbChargeThreshold"
-            />
+            app:layout_constraintVertical_chainStyle="spread"/>
         <ir.morteza_aghighi.chargingalert.tools.IOSProgressBar
             android:id="@+id/iosPbChargeThreshold"
             android:layout_width="0dp"
