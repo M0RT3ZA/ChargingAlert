@@ -8,10 +8,14 @@ import android.content.IntentFilter
 import android.os.BatteryManager
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import androidx.core.app.NotificationCompat
+import ir.morteza_aghighi.chargingalert.AlertActivity
 import ir.morteza_aghighi.chargingalert.MainActivity
 import ir.morteza_aghighi.chargingalert.R
+import ir.morteza_aghighi.chargingalert.tools.SharedPrefs
 import ir.morteza_aghighi.chargingalert.tools.SharedPrefs.setBoolean
+import kotlinx.coroutines.*
 
 private const val CHANNEL_ID = "ForegroundServiceChannel"
 
@@ -19,6 +23,12 @@ class ChargingMonitorService : Service() {
     override fun onBind(intent: Intent): IBinder? {
         return null
     }
+
+    private val errorHandler = CoroutineExceptionHandler { _, throwable ->
+        throwable.printStackTrace()
+    }
+    val chargeAlterCoolDownJob = CoroutineScope(Dispatchers.Default + errorHandler)
+    val disChargeAlterCoolDownJob = CoroutineScope(Dispatchers.Default + errorHandler)
 
     private val batteryInfoModel = BatteryInfoModel()
     private var batIFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
@@ -62,6 +72,43 @@ class ChargingMonitorService : Service() {
                 )
 
                 batteryInfoModel.setBatTemp("${intent.getIntExtra("temperature", -1) / 10}°C")
+
+                if (SharedPrefs.getBoolean("isAlertEnabled", context) &&
+                    batteryInfoModel.getBatChargingType() != "Unplugged" && SharedPrefs.getInt(
+                        "chargingLimit",
+                        context
+                    ) <= batteryInfoModel.getBatLevel() &&
+                    !SharedPrefs.getBoolean("isAlarmPlaying", context)
+                ) {
+                    setBoolean("isAlarmPlaying", true, context)
+                    context.startActivity(
+                        Intent(context, AlertActivity::class.java)
+                            .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    )
+                    chargeAlterCoolDownJob.launch {
+                        delay(300000)
+                        setBoolean("isAlarmPlaying", false, context)
+                    }
+                }
+                if (SharedPrefs.getBoolean("isAlertEnabled", context) &&
+                    batteryInfoModel.getBatChargingType() == "Unplugged" && SharedPrefs.getInt(
+                        "disChargingLimit",
+                        context
+                    ) >= batteryInfoModel.getBatLevel() &&
+                    !SharedPrefs.getBoolean("isAlarmPlaying", context)
+                ) {
+                    setBoolean("isAlarmPlaying", true, context)
+                    context.startActivity(
+                        Intent(context, AlertActivity::class.java)
+                            .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+//                       true for discharge alert and false for charging alert
+                            .putExtra("alertType", true)
+                    )
+                    disChargeAlterCoolDownJob.launch {
+                        delay(300000)
+                        setBoolean("isAlarmPlaying", false, context)
+                    }
+                }
                 sendBroadcast(batteryStatus)
             }
         }
@@ -98,9 +145,9 @@ class ChargingMonitorService : Service() {
         try {
             unregisterReceiver(batteryReceiver)
             unregisterReceiver(exitSignalReceiver)
-
-        } catch (ignored: Exception) {
-        }
+            if (chargeAlterCoolDownJob.isActive)
+                chargeAlterCoolDownJob.cancel()
+        } catch (ignored: Exception) {}
         //        SharedPrefs.setBoolean("isAlarmPlaying",false,this);
     }
 

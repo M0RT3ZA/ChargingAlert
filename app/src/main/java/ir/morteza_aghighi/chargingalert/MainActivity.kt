@@ -288,7 +288,7 @@ class MainActivity : AppCompatActivity(), QuestionListener {
             if (actionUp) {
                 SharedPrefs.setInt("volume", (progress / 10F).roundToInt(), applicationContext)
                 if (!mediaPlayer.isPlaying) {
-                    currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+//                    currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
                     mediaPlayer = MediaPlayer.create(
                         applicationContext,
                         Settings.System.DEFAULT_ALARM_ALERT_URI
@@ -307,7 +307,7 @@ class MainActivity : AppCompatActivity(), QuestionListener {
                     mediaPlayer.start()
                     cancelTimer.start()
                 } else {
-                    currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+//                    currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
                     cancelTimer.cancel()
                     mediaPlayer.release()
                     mediaPlayer = MediaPlayer.create(
@@ -337,7 +337,7 @@ class MainActivity : AppCompatActivity(), QuestionListener {
 
     override fun onResume() {
         super.onResume()
-        reloadUI()
+        reloadUIAndVars()
     }
 
     override fun onDestroy() {
@@ -371,7 +371,9 @@ class MainActivity : AppCompatActivity(), QuestionListener {
     }
 
     @SuppressLint("SetTextI18n")
-    private fun reloadUI() {
+    private fun reloadUIAndVars() {
+        currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+
         val batteryInfoModel = BatteryInfoModel()
         mainActivityBinding.tvBatPercent.text =
             "${getString(R.string.batPercent)}${batteryInfoModel.getBatPercentage()}"
