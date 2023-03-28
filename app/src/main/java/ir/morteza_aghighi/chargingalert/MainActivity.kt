@@ -236,12 +236,6 @@ class MainActivity : AppCompatActivity(), QuestionListener {
                 }
             }
         }
-        val coolDownTimer: CountDownTimer = object : CountDownTimer(5000, 1000) {
-            override fun onTick(millisUntilFinished: Long) {}
-            override fun onFinish() {
-                SharedPrefs.setBoolean("isAlertEnabled", true, this@MainActivity)
-            }
-        }
 
         audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
         RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
@@ -258,30 +252,41 @@ class MainActivity : AppCompatActivity(), QuestionListener {
         }
 
         iosPbChargeThreshold.setProgress(SharedPrefs.getInt("chargingLimit", applicationContext))
-        iosPbChargeThreshold.setOnProgressChangeListener { iosProgressBar, progress, maxProgress, minProgress, actionUp ->
-            if (actionUp)
-                if (SharedPrefs.getInt("disChargingLimit", applicationContext) < progress)
-                    SharedPrefs.setInt("chargingLimit", progress, applicationContext)
+        iosPbChargeThreshold.setOnProgressChangeListener { _, progress, _, _, actionUp ->
+            if (actionUp) if (SharedPrefs.getInt(
+                    "disChargingLimit",
+                    applicationContext
+                ) < progress
+            ) SharedPrefs.setInt("chargingLimit", progress, applicationContext)
             else {
                 ToastMaker(applicationContext, getString(R.string.lowerAlert), true).msg()
-                    iosPbChargeThreshold.setProgress(iosPbDischargeThreshold.getProgress() + 1)
-                    SharedPrefs.setInt("chargingLimit", iosPbDischargeThreshold.getProgress() + 1, applicationContext)
+                iosPbChargeThreshold.setProgress(iosPbDischargeThreshold.getProgress() + 1)
+                SharedPrefs.setInt(
+                    "chargingLimit", iosPbDischargeThreshold.getProgress() + 1, applicationContext
+                )
             }
         }
 
-        iosPbDischargeThreshold.setProgress(SharedPrefs.getInt("disChargingLimit", applicationContext))
-        iosPbDischargeThreshold.setOnProgressChangeListener { iosProgressBar, progress, maxProgress, minProgress, actionUp ->
-            if (actionUp)
-                if (SharedPrefs.getInt("chargingLimit", applicationContext) > progress)
-                    SharedPrefs.setInt("disChargingLimit", progress, applicationContext)
+        iosPbDischargeThreshold.setProgress(
+            SharedPrefs.getInt(
+                "disChargingLimit", applicationContext
+            )
+        )
+        iosPbDischargeThreshold.setOnProgressChangeListener { _, progress, _, _, actionUp ->
+            if (actionUp) if (SharedPrefs.getInt(
+                    "chargingLimit",
+                    applicationContext
+                ) > progress
+            ) SharedPrefs.setInt("disChargingLimit", progress, applicationContext)
             else {
                 ToastMaker(applicationContext, getString(R.string.lowerAlert), true).msg()
-                    iosPbDischargeThreshold.setProgress(iosPbChargeThreshold.getProgress() - 1)
-                    SharedPrefs.setInt("disChargingLimit", iosPbChargeThreshold.getProgress() - 1, applicationContext)
+                iosPbDischargeThreshold.setProgress(iosPbChargeThreshold.getProgress() - 1)
+                SharedPrefs.setInt(
+                    "disChargingLimit", iosPbChargeThreshold.getProgress() - 1, applicationContext
+                )
             }
         }
-        iosPbVolume.maxProgress =
-            audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) * 10
+        iosPbVolume.maxProgress = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) * 10
         iosPbVolume.minProgress = 0
         iosPbVolume.setProgress(SharedPrefs.getInt("volume", applicationContext) * 10)
         iosPbVolume.setOnProgressChangeListener { _, progress, _, _, actionUp ->
@@ -290,8 +295,7 @@ class MainActivity : AppCompatActivity(), QuestionListener {
                 if (!mediaPlayer.isPlaying) {
 //                    currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
                     mediaPlayer = MediaPlayer.create(
-                        applicationContext,
-                        Settings.System.DEFAULT_ALARM_ALERT_URI
+                        applicationContext, Settings.System.DEFAULT_ALARM_ALERT_URI
                     )
                     mediaPlayer.setVolume(
                         SharedPrefs.getInt("volume", applicationContext)
@@ -311,8 +315,7 @@ class MainActivity : AppCompatActivity(), QuestionListener {
                     cancelTimer.cancel()
                     mediaPlayer.release()
                     mediaPlayer = MediaPlayer.create(
-                        applicationContext,
-                        Settings.System.DEFAULT_ALARM_ALERT_URI
+                        applicationContext, Settings.System.DEFAULT_ALARM_ALERT_URI
                     )
                     mediaPlayer.setVolume(
                         SharedPrefs.getInt("volume", applicationContext)

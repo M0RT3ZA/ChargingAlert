@@ -8,7 +8,6 @@ import android.content.IntentFilter
 import android.os.BatteryManager
 import android.os.Build
 import android.os.IBinder
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import ir.morteza_aghighi.chargingalert.AlertActivity
 import ir.morteza_aghighi.chargingalert.MainActivity
