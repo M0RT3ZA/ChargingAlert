@@ -22,7 +22,6 @@ class AlertActivity : AppCompatActivity() {
     private lateinit var cancelTimer: CountDownTimer
     private lateinit var audioManager: AudioManager
     private var bypassDND = false
-    private var isUnplugged = false
     private var isDischargeAlert = false
     private var isDNDoff = false
     private var currentVolume = 0
@@ -38,7 +37,6 @@ class AlertActivity : AppCompatActivity() {
             getString(R.string.disChargeDismissMessage)
         } else getString(R.string.chargeDismissMessage)
         bypassDND = SharedPrefs.getBoolean("bypassDND", applicationContext)
-        isUnplugged = BatteryInfoModel().getBatChargingType() == "Unplugged"
         isDischargeAlert = intent.getBooleanExtra("alertType", false)
         audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
         currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
@@ -79,7 +77,9 @@ class AlertActivity : AppCompatActivity() {
 
     private fun initFunctions() {
 
-        if ((isDNDoff || bypassDND) && ((isDischargeAlert && isUnplugged) || (!isDischargeAlert && !isUnplugged))) {
+        if ((isDNDoff || bypassDND)
+            && ((isDischargeAlert && BatteryInfoModel().getBatChargingType() == "Unplugged")
+                    || (!isDischargeAlert && BatteryInfoModel().getBatChargingType() != "Unplugged"))) {
             RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
             audioManager.setStreamVolume(
                 AudioManager.STREAM_MUSIC,
@@ -96,7 +96,10 @@ class AlertActivity : AppCompatActivity() {
         }
         cancelTimer = object : CountDownTimer(60000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
-                if (isUnplugged && !isDischargeAlert) {
+                if (BatteryInfoModel().getBatChargingType() == "Unplugged" && !isDischargeAlert) {
+                    cancelTimer.cancel()
+                    finish()
+                }else if (BatteryInfoModel().getBatChargingType() != "Unplugged" && isDischargeAlert){
                     cancelTimer.cancel()
                     finish()
                 }
