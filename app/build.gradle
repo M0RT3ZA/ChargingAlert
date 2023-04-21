@@ -20,7 +20,7 @@ android {
         } else {
 //            throw new FileNotFoundException("Could not read version.properties!")
             new File(projectDir, "version.properties").text = "VERSION_BUILD=1"
-            gradlew recompile-scripts
+            gradlew recompile - scripts
         }
 
         ext.autoIncrementBuildNumber = {
@@ -47,15 +47,19 @@ android {
                 autoIncrementBuildNumber()
             }
         }
-        versionName = (0 + versionBuild / 100)
+        if (versionBuild % 100 == 0) {
+            versionName = (versionBuild / 100) + ".00"
+        } else if (versionBuild % 10 == 0) {
+            versionName = (versionBuild / 100) + "0"
+        } else versionName = (versionBuild / 100)
         setProperty("archivesBaseName", "Charging_Alert-$versionName")
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    buildFeatures{
+    buildFeatures {
         viewBinding true
     }
-    
+
     buildTypes {
         release {
             minifyEnabled false
