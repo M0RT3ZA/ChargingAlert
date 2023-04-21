@@ -53,70 +53,67 @@ class MainActivity : AppCompatActivity(), QuestionListener {
     }
 
     private fun initTour() {
-        if (!SharedPrefs.getBoolean("tourComplete", applicationContext)) {
-            TapTargetSequence(this@MainActivity).targets(
-                TapTarget.forView(
-                    mainActivityBinding.clTVs,
-                    getString(R.string.batInfoTitle),
-                    getString(R.string.batInfoDescription)
-                ).tintTarget(true),
-                TapTarget.forView(
-                    mainActivityBinding.iosPbChargeThreshold,
-                    getString(R.string.chargeThresholdTitle),
-                    getString(R.string.chargeThresholdDescription)
-                ).tintTarget(false),
-                TapTarget.forView(
-                    mainActivityBinding.iosPbDischargeThreshold,
-                    getString(R.string.disChargeThresholdTitle),
-                    getString(R.string.disChargeThresholdDescription)
-                ).tintTarget(false),
-                TapTarget.forView(
-                    mainActivityBinding.iosPbVolume,
-                    getString(R.string.alertVolumeTitle),
-                    getString(R.string.alertVolumeDescription)
-                ).tintTarget(false),
-                TapTarget.forView(
-                    mainActivityBinding.swDND,
-                    getString(R.string.ignoreDNDTitle),
-                    getString(R.string.ignoreDNDDescription)
-                ).tintTarget(false),
-                TapTarget.forView(
-                    mainActivityBinding.swBoot,
-                    getString(R.string.runOnBootTitle),
-                    getString(R.string.runOnBootDescription)
-                ).tintTarget(false),
-                TapTarget.forView(
-                    mainActivityBinding.btnChargingAlert,
-                    getString(R.string.enableServiceTitle),
-                    getString(R.string.enableServiceDescription)
-                ).tintTarget(false)
-            ).continueOnCancel(true)
-                .considerOuterCircleCanceled(false)
-                .listener(object : TapTargetSequence.Listener {
-                    override fun onSequenceFinish() {
-                        SharedPrefs.setBoolean("tourComplete", true, this@MainActivity)
-                    }
+        if (SharedPrefs.getBoolean("tourComplete", applicationContext)) return
 
-                    override fun onSequenceStep(lastTarget: TapTarget?, targetClicked: Boolean) {}
+        TapTargetSequence(this@MainActivity).targets(
+            TapTarget.forView(
+                mainActivityBinding.clTVs,
+                getString(R.string.batInfoTitle),
+                getString(R.string.batInfoDescription)
+            ).tintTarget(true),
+            TapTarget.forView(
+                mainActivityBinding.iosPbChargeThreshold,
+                getString(R.string.chargeThresholdTitle),
+                getString(R.string.chargeThresholdDescription)
+            ).tintTarget(false),
+            TapTarget.forView(
+                mainActivityBinding.iosPbDischargeThreshold,
+                getString(R.string.disChargeThresholdTitle),
+                getString(R.string.disChargeThresholdDescription)
+            ).tintTarget(false),
+            TapTarget.forView(
+                mainActivityBinding.iosPbVolume,
+                getString(R.string.alertVolumeTitle),
+                getString(R.string.alertVolumeDescription)
+            ).tintTarget(false),
+            TapTarget.forView(
+                mainActivityBinding.swDND,
+                getString(R.string.ignoreDNDTitle),
+                getString(R.string.ignoreDNDDescription)
+            ).tintTarget(false),
+            TapTarget.forView(
+                mainActivityBinding.swBoot,
+                getString(R.string.runOnBootTitle),
+                getString(R.string.runOnBootDescription)
+            ).tintTarget(false),
+            TapTarget.forView(
+                mainActivityBinding.btnChargingAlert,
+                getString(R.string.enableServiceTitle),
+                getString(R.string.enableServiceDescription)
+            ).tintTarget(false)
+        ).continueOnCancel(true)
+            .listener(object : TapTargetSequence.Listener {
+                override fun onSequenceFinish() {
+                    SharedPrefs.setBoolean("tourComplete", true, this@MainActivity)
+                }
 
-                    override fun onSequenceCanceled(lastTarget: TapTarget?) {}
+                override fun onSequenceStep(lastTarget: TapTarget?, targetClicked: Boolean) {}
 
-                }).start()
-        }
+                override fun onSequenceCanceled(lastTarget: TapTarget?) {}
+
+            }).start()
     }
 
     private fun batteryOptimizationRequest() {
-        if (!SharedPrefs.getBoolean("isBatteryOptimizationAsked", this@MainActivity)) {
-            val packageName = packageName
-            val pm = getSystemService(POWER_SERVICE) as PowerManager
-            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
-                questionDialog = QuestionDialog(
-                    getString(R.string.warning), getString(R.string.explenationBattery)
-                )
-                questionDialog!!.isCancelable = false
-                questionDialog!!.show(supportFragmentManager, batteryOptimizationTag)
-            }
-        }
+        val packageName = packageName
+        val pm = getSystemService(POWER_SERVICE) as PowerManager
+        if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+            questionDialog = QuestionDialog(
+                getString(R.string.warning), getString(R.string.explenationBattery)
+            )
+            questionDialog!!.isCancelable = false
+            questionDialog!!.show(supportFragmentManager, batteryOptimizationTag)
+        } else initTour()
     }
 
     private fun checkDrawOverlayPermission() {
