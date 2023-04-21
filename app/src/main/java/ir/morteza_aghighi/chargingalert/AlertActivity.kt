@@ -19,24 +19,28 @@ import ir.morteza_aghighi.chargingalert.tools.SharedPrefs
 class AlertActivity : AppCompatActivity() {
     private lateinit var dismissMessage: String
     private lateinit var mediaPlayer: MediaPlayer
-    private lateinit var cancelTimer: CountDownTimer
+    private lateinit var chargeDischargeAlertCancelTimer: CountDownTimer
     private lateinit var audioManager: AudioManager
     private var bypassDND = false
+    private var isUnplugged = false
     private var isDischargeAlert = false
     private var isDNDoff = false
     private var currentVolume = 0
+    private lateinit var batteryInfoModel: BatteryInfoModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initVariables()
     }
 
     private fun initVariables() {
+        batteryInfoModel = BatteryInfoModel()
         isDischargeAlert = intent.getBooleanExtra("alertType", false)
         isDNDoff = Settings.Global.getInt(contentResolver, "zen_mode") == 0
         dismissMessage = if (isDischargeAlert) {
             getString(R.string.disChargeDismissMessage)
         } else getString(R.string.chargeDismissMessage)
         bypassDND = SharedPrefs.getBoolean("bypassDND", applicationContext)
+        isUnplugged = batteryInfoModel.getBatChargingType() == "Unplugged"
         isDischargeAlert = intent.getBooleanExtra("alertType", false)
         audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
         currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
@@ -77,9 +81,7 @@ class AlertActivity : AppCompatActivity() {
 
     private fun initFunctions() {
 
-        if ((isDNDoff || bypassDND)
-            && ((isDischargeAlert && BatteryInfoModel().getBatChargingType() == "Unplugged")
-                    || (!isDischargeAlert && BatteryInfoModel().getBatChargingType() != "Unplugged"))) {
+        if ((isDNDoff || bypassDND) && ((isDischargeAlert && isUnplugged) || (!isDischargeAlert && !isUnplugged))) {
             RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
             audioManager.setStreamVolume(
                 AudioManager.STREAM_MUSIC,
@@ -94,15 +96,15 @@ class AlertActivity : AppCompatActivity() {
             )
             mediaPlayer.start()
         }
-        cancelTimer = object : CountDownTimer(60000, 1000) {
+        chargeDischargeAlertCancelTimer = object : CountDownTimer(60000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
-                if (BatteryInfoModel().getBatChargingType() == "Unplugged" && !isDischargeAlert) {
-                    cancelTimer.cancel()
-                    finish()
-                }else if (BatteryInfoModel().getBatChargingType() != "Unplugged" && isDischargeAlert){
-                    cancelTimer.cancel()
+                isUnplugged = batteryInfoModel.getBatChargingType() == "Unplugged"
+
+                if ((isUnplugged && !isDischargeAlert) || (!isUnplugged && isDischargeAlert)) {
+                    chargeDischargeAlertCancelTimer.cancel()
                     finish()
                 }
+
             }
 
             override fun onFinish() {
@@ -120,7 +122,7 @@ class AlertActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         try {
-            cancelTimer.cancel()
+            chargeDischargeAlertCancelTimer.cancel()
             if (isDNDoff || bypassDND) {
                 audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, currentVolume, 0)
                 mediaPlayer.release()
