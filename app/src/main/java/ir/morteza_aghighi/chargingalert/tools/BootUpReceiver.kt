@@ -17,7 +17,7 @@ BootUpReceiver : BroadcastReceiver() {
             ) && Intent.ACTION_BOOT_COMPLETED == intent.action &&
             !ServiceMonitor().isMyServiceRunning(ChargingMonitorService::class.java, context)
         ) {
-            ToastMaker(context, "Starting Charging Monitor Service...").msg()
+            ToastMaker(context, "Starting Charging Monitor Service...").sh()
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     context.startForegroundService(

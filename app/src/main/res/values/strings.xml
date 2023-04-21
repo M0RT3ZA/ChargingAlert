@@ -24,4 +24,18 @@
     <string name="lowerAlert">Can not set Charging limit lower than discharging limit!</string>
     <string name="chargeDismissMessage">You will be alerted after 5 minutes if your phone is still on Charger.</string>
     <string name="disChargeDismissMessage">You will be alerted after 5 minutes if your phone is still on Battery.</string>
+    <string name="batInfoTitle">Battery Info</string>
+    <string name="batInfoDescription">Here You can see the information about you phone\'s battery.</string>
+    <string name="chargeThresholdTitle">Charging alert threshold slider</string>
+    <string name="chargeThresholdDescription">With this slider you can adjust the charge threshold to trigger alert.\nFor example if you set the slider on 90% when your phone charge reaches to 90% you will be notified.</string>
+    <string name="disChargeThresholdTitle">Discharge alert threshold slider</string>
+    <string name="disChargeThresholdDescription">With this slider you can adjust the discharge threshold to trigger alert.\nFor example if you set the slider on 20% when your phone battery percentage drops to 20% you will be notified.</string>
+    <string name="alertVolumeTitle">Alert Volume</string>
+    <string name="alertVolumeDescription">The amount of alert\'s audio volume.\nDefault is 0 which means you just seed the alert screen but you can increase it in case of you want audio alert too.</string>
+    <string name="ignoreDNDTitle">Ignore DND switch</string>
+    <string name="ignoreDNDDescription">By default the app respect your DND settings and do not play any audio alert when DND mode is on but you can by pass DND mode and have audio alert by turning on this switch.</string>
+    <string name="runOnBootTitle">Run on the boot switch</string>
+    <string name="runOnBootDescription">If you want the background service automatically runs on phone\'s startup, turn on this switch.</string>
+    <string name="enableServiceTitle">Enable Service</string>
+    <string name="enableServiceDescription">The service is not running until you turn it on.\nWhen you tap this button the background service will be enabled and the color of button turns red.</string>
 </resources>

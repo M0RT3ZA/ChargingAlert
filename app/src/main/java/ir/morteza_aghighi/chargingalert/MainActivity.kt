@@ -13,6 +13,8 @@ import android.os.PowerManager
 import android.provider.Settings
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.getkeepsafe.taptargetview.TapTarget
+import com.getkeepsafe.taptargetview.TapTargetSequence
 import ir.morteza_aghighi.chargingalert.databinding.ActivityMainBinding
 import ir.morteza_aghighi.chargingalert.model.BatteryInfoModel
 import ir.morteza_aghighi.chargingalert.tools.QuestionDialog
@@ -48,6 +50,59 @@ class MainActivity : AppCompatActivity(), QuestionListener {
         }
         if (savedInstanceState == null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) checkDrawOverlayPermission()
         uiThings()
+    }
+
+    private fun initTour() {
+        if (!SharedPrefs.getBoolean("tourComplete", applicationContext)) {
+            TapTargetSequence(this@MainActivity).targets(
+                TapTarget.forView(
+                    mainActivityBinding.clTVs,
+                    getString(R.string.batInfoTitle),
+                    getString(R.string.batInfoDescription)
+                ).tintTarget(true),
+                TapTarget.forView(
+                    mainActivityBinding.iosPbChargeThreshold,
+                    getString(R.string.chargeThresholdTitle),
+                    getString(R.string.chargeThresholdDescription)
+                ).tintTarget(false),
+                TapTarget.forView(
+                    mainActivityBinding.iosPbDischargeThreshold,
+                    getString(R.string.disChargeThresholdTitle),
+                    getString(R.string.disChargeThresholdDescription)
+                ).tintTarget(false),
+                TapTarget.forView(
+                    mainActivityBinding.iosPbVolume,
+                    getString(R.string.alertVolumeTitle),
+                    getString(R.string.alertVolumeDescription)
+                ).tintTarget(false),
+                TapTarget.forView(
+                    mainActivityBinding.swDND,
+                    getString(R.string.ignoreDNDTitle),
+                    getString(R.string.ignoreDNDDescription)
+                ).tintTarget(false),
+                TapTarget.forView(
+                    mainActivityBinding.swBoot,
+                    getString(R.string.runOnBootTitle),
+                    getString(R.string.runOnBootDescription)
+                ).tintTarget(false),
+                TapTarget.forView(
+                    mainActivityBinding.btnChargingAlert,
+                    getString(R.string.enableServiceTitle),
+                    getString(R.string.enableServiceDescription)
+                ).tintTarget(false)
+            ).continueOnCancel(true)
+                .considerOuterCircleCanceled(false)
+                .listener(object : TapTargetSequence.Listener {
+                    override fun onSequenceFinish() {
+                        SharedPrefs.setBoolean("tourComplete", true, this@MainActivity)
+                    }
+
+                    override fun onSequenceStep(lastTarget: TapTarget?, targetClicked: Boolean) {}
+
+                    override fun onSequenceCanceled(lastTarget: TapTarget?) {}
+
+                }).start()
+        }
     }
 
     private fun batteryOptimizationRequest() {
@@ -254,12 +309,11 @@ class MainActivity : AppCompatActivity(), QuestionListener {
         iosPbChargeThreshold.setProgress(SharedPrefs.getInt("chargingLimit", applicationContext))
         iosPbChargeThreshold.setOnProgressChangeListener { _, progress, _, _, actionUp ->
             if (actionUp) if (SharedPrefs.getInt(
-                    "disChargingLimit",
-                    applicationContext
+                    "disChargingLimit", applicationContext
                 ) < progress
             ) SharedPrefs.setInt("chargingLimit", progress, applicationContext)
             else {
-                ToastMaker(applicationContext, getString(R.string.lowerAlert), true).msg()
+                ToastMaker(applicationContext, getString(R.string.lowerAlert), true).sh()
                 iosPbChargeThreshold.setProgress(iosPbDischargeThreshold.getProgress() + 1)
                 SharedPrefs.setInt(
                     "chargingLimit", iosPbDischargeThreshold.getProgress() + 1, applicationContext
@@ -274,12 +328,11 @@ class MainActivity : AppCompatActivity(), QuestionListener {
         )
         iosPbDischargeThreshold.setOnProgressChangeListener { _, progress, _, _, actionUp ->
             if (actionUp) if (SharedPrefs.getInt(
-                    "chargingLimit",
-                    applicationContext
+                    "chargingLimit", applicationContext
                 ) > progress
             ) SharedPrefs.setInt("disChargingLimit", progress, applicationContext)
             else {
-                ToastMaker(applicationContext, getString(R.string.lowerAlert), true).msg()
+                ToastMaker(applicationContext, getString(R.string.lowerAlert), true).sh()
                 iosPbDischargeThreshold.setProgress(iosPbChargeThreshold.getProgress() - 1)
                 SharedPrefs.setInt(
                     "disChargingLimit", iosPbChargeThreshold.getProgress() - 1, applicationContext
@@ -352,7 +405,7 @@ class MainActivity : AppCompatActivity(), QuestionListener {
     }
 
     override fun onButtonClicked(result: Boolean) {
-        SharedPrefs.setBoolean("isDeviceRotated", false, this@MainActivity)
+//        SharedPrefs.setBoolean("isDeviceRotated", false, this@MainActivity)
         assert(questionDialog!!.tag != null)
         if (questionDialog!!.tag == overlayTag && result) {
             val intent = Intent(
@@ -363,14 +416,18 @@ class MainActivity : AppCompatActivity(), QuestionListener {
         } else if (questionDialog!!.tag == batteryOptimizationTag && result) {
             val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
             startActivityForResult(intent, BATTERY_OPTIMIZATION_REQUEST_CODE)
-        }
+        } else if (questionDialog!!.tag == batteryOptimizationTag && !result) initTour()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == OVERLAY_REQUEST_CODE) batteryOptimizationRequest() else if (requestCode == BATTERY_OPTIMIZATION_REQUEST_CODE) SharedPrefs.setBoolean(
-            "isBatteryOptimizationAsked", true, this@MainActivity
-        )
+        if (requestCode == OVERLAY_REQUEST_CODE) batteryOptimizationRequest()
+        else if (requestCode == BATTERY_OPTIMIZATION_REQUEST_CODE) {
+            SharedPrefs.setBoolean(
+                "isBatteryOptimizationAsked", true, this@MainActivity
+            )
+            initTour()
+        }
     }
 
     @SuppressLint("SetTextI18n")
