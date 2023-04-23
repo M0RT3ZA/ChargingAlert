@@ -17,8 +17,8 @@
     <string name="batType">Technology:\n</string>
     <string name="batTemp">Temperature:\n</string>
     <string name="batCharging">Charging:\n</string>
-    <string name="chargeTitle">Maximum Charge threshold to trigger the alert:</string>
-    <string name="disChargeTitle">Minimum Charge threshold to trigger the alert:</string>
+    <string name="maxChargeTitle">Maximum Charge threshold to trigger the alert:</string>
+    <string name="minDisChargeTitle">Minimum Charge threshold to trigger the alert:</string>
     <string name="volumeTitle">Alert Volume:</string>
     <string name="ignoreDND">Ignore DND:</string>
     <string name="lowerAlert">Can not set Charging limit lower than discharging limit!</string>
