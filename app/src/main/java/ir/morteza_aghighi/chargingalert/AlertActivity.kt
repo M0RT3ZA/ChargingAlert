@@ -33,29 +33,63 @@ class AlertActivity : AppCompatActivity() {
     }
 
     private fun initVariables() {
+        /**
+         * initialize battery data model to get battery info.
+         * this is useful when we want to check whether battery is unplugged or plugged.*/
         batteryInfoModel = BatteryInfoModel()
+
+
+        /**
+         * checking whether alert is for charging limit reached or discharging limit reached.*/
         isDischargeAlert = intent.getBooleanExtra("alertType", false)
+
+
+        /**
+         * check to see DND mode is on or off.
+         * by default app respects the DND mode settings unless user tells it to play alarm even on DND.*/
         isDNDoff = Settings.Global.getInt(contentResolver, "zen_mode") == 0
+
+
+        /**
+         * setting dismiss message according to the type of alert (charge or discharge).*/
         dismissMessage = if (isDischargeAlert) {
             getString(R.string.disChargeDismissMessage)
         } else getString(R.string.chargeDismissMessage)
+
+
+        /**
+         * check to see if user want to play alert on DND or not.*/
         bypassDND = SharedPrefs.getBoolean("bypassDND", applicationContext)
+
+
+        /**
+         * check to see is charger connected on creating activity.
+         * this is just an initialization and later we update this variable.*/
         isUnplugged = batteryInfoModel.getBatChargingType() == "Unplugged"
-        isDischargeAlert = intent.getBooleanExtra("alertType", false)
+
+
+        /**
+         * setting up audio manager and media player to be able to set user preferred volume.
+         * you will see the logic in the {@link #initFunctions() initFunctions} function*/
         audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
         currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
         mediaPlayer = MediaPlayer.create(
             applicationContext, Settings.System.DEFAULT_ALARM_ALERT_URI
         )
+
         initUI()
     }
 
     private fun initUI() {
 
+        /**
+         * using view binding*/
         val activityAlertBinding: ActivityAlertBinding =
             ActivityAlertBinding.inflate(layoutInflater)
         setContentView(activityAlertBinding.root)
 
+        /**
+         * turning on the screen*/
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
             setTurnScreenOn(true)
             val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
@@ -70,6 +104,8 @@ class AlertActivity : AppCompatActivity() {
             )
         }
 
+        /**
+         * onclick listener for btn snooze*/
         activityAlertBinding.btnSnooze.setOnClickListener {
             Toast.makeText(
                 this@AlertActivity, dismissMessage, Toast.LENGTH_LONG
