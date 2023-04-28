@@ -1,5 +1,7 @@
 package ir.morteza_aghighi.chargingalert.model
 
+/** data model for battery info.
+ * there is only getters and setters.*/
 class BatteryInfoModel {
     companion object {
         private var batLevel = 0
