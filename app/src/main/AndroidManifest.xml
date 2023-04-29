@@ -31,7 +31,7 @@
             tools:ignore="LockedOrientationActivity" />
 
         <receiver
-            android:name="ir.morteza_aghighi.chargingalert.tools.backgroundService.BootUpReceiver"
+            android:name="ir.morteza_aghighi.chargingalert.tools.BootUpReceiver"
             android:enabled="true"
             android:exported="false">
             <intent-filter>
@@ -45,22 +45,6 @@
         <service
             android:name="ir.morteza_aghighi.chargingalert.model.ChargingMonitorService"
             android:enabled="true" />
-
-        <service
-            android:name=".tools.backgroundService.DataReceiverService"
-            android:enabled="true"
-            android:exported="false"
-            android:stopWithTask="false" />
-
-        <receiver
-            android:name=".tools.backgroundService.StartReceiver"
-            android:enabled="true"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
-        <receiver android:name=".tools.backgroundService.StopServiceBroadcast" />
 
 
         <activity

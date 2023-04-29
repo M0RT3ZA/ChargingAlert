@@ -171,7 +171,10 @@ class ChargingMonitorService : Service() {
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+
+        /** when service started we register our battery broadcast receiver with intent filter*/
         registerReceiver(batteryReceiver, batIFilter)
+        /** with below function we create a notification channel for our background service.*/
         createNotificationChannel()
         val notificationIntent = Intent(this, MainActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
