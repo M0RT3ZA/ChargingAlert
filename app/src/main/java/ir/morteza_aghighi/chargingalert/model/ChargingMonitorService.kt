@@ -17,6 +17,7 @@ import ir.morteza_aghighi.chargingalert.AlertActivity
 import ir.morteza_aghighi.chargingalert.MainActivity
 import ir.morteza_aghighi.chargingalert.R
 import ir.morteza_aghighi.chargingalert.tools.SharedPrefs
+import ir.morteza_aghighi.chargingalert.tools.backgroundService.ServiceNotificationTools
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -104,27 +105,31 @@ class ChargingMonitorService : Service() {
                  * and battery level is equal or greater than the limit set by user,
                  * it means we should play alarm. so if alarm is not already playing
                  * the alert progress starts.*/
-                if (SharedPrefs.getBoolean("isAlertEnabled", context)
-                    && batteryInfoModel.getBatChargingType() != "Unplugged"
-                    && SharedPrefs.getInt("chargingLimit", context) <= batteryInfoModel.getBatLevel()
-                    && !SharedPrefs.getBoolean("isAlarmPlaying", context)
+                if (SharedPrefs.getBoolean(
+                        context, "isAlertEnabled"
+                    ) && batteryInfoModel.getBatChargingType() != "Unplugged" && SharedPrefs.getInt(
+                        context, "chargingLimit"
+                    ) <= batteryInfoModel.getBatLevel() && !SharedPrefs.getBoolean(
+                        context, "isAlarmPlaying"
+                    )
                 ) {
                     /** storing the "isAlarmPlaying" value in shared preferences
                      * so next time the if is not satisfied and this if body does not execute,
                      * until the cool down timer finishes.*/
-                    SharedPrefs.setBoolean("isAlarmPlaying", true, context)
+                    SharedPrefs.setBoolean(context, "isAlarmPlaying", true)
 
                     /** launching alert activity*/
                     context.startActivity(
-                        Intent(context, AlertActivity::class.java)
-                            .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                        Intent(
+                            context, AlertActivity::class.java
+                        ).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
                     )
 
                     /** waiting 5 minute then reset the value of "isAlarmPlaying" back to false,
                      * so if user still needs to plug/unplug the charger alert plays again.*/
                     chargeAlterCoolDownJob.launch {
                         delay(300000)
-                        SharedPrefs.setBoolean("isAlarmPlaying", false, context)
+                        SharedPrefs.setBoolean(context, "isAlarmPlaying", false)
                     }
                 }
 
@@ -132,12 +137,15 @@ class ChargingMonitorService : Service() {
                  * and battery level is equal or lower than the limit set by user,
                  * it means we should play alarm. so if alarm is not already playing
                  * the alert progress starts.*/
-                if (SharedPrefs.getBoolean("isAlertEnabled", context)
-                    && batteryInfoModel.getBatChargingType() == "Unplugged"
-                    && SharedPrefs.getInt("disChargingLimit", context) >= batteryInfoModel.getBatLevel()
-                    && !SharedPrefs.getBoolean("isAlarmPlaying", context)
+                if (SharedPrefs.getBoolean(
+                        context, "isAlertEnabled"
+                    ) && batteryInfoModel.getBatChargingType() == "Unplugged" && SharedPrefs.getInt(
+                        context, "disChargingLimit"
+                    ) >= batteryInfoModel.getBatLevel() && !SharedPrefs.getBoolean(
+                        context, "isAlarmPlaying"
+                    )
                 ) {
-                    SharedPrefs.setBoolean("isAlarmPlaying", true, context)
+                    SharedPrefs.setBoolean(context, "isAlarmPlaying", true)
                     context.startActivity(
                         Intent(
                             context, AlertActivity::class.java
@@ -147,7 +155,7 @@ class ChargingMonitorService : Service() {
                     )
                     disChargeAlterCoolDownJob.launch {
                         delay(300000)
-                        SharedPrefs.setBoolean("isAlarmPlaying", false, context)
+                        SharedPrefs.setBoolean(context, "isAlarmPlaying", false)
                     }
                 }
                 /** here we create battery status intent and broadcast it so can receive
@@ -185,7 +193,14 @@ class ChargingMonitorService : Service() {
             .setContentIntent(pendingIntent)
             .addAction(R.drawable.ic_stat_name, "Turn OFF Monitoring Service", pendingExitIntent)
             .build()
-        startForeground(1, notification)
+
+
+        startForeground(1, ServiceNotificationTools(this)
+            .createServiceNotification(getString(R.string.serviceNotificationTitle),
+                getString(R.string.serviceNotificationDescription),
+                R.drawable.ic_stat_name,
+                getString(R.string.exitServiceDescription),
+                R.drawable.ic_baseline_close_24))
         //do heavy work on a background thread
         return START_STICKY
     }
@@ -196,13 +211,14 @@ class ChargingMonitorService : Service() {
             unregisterReceiver(exitSignalReceiver)
             if (chargeAlterCoolDownJob.isActive) chargeAlterCoolDownJob.cancel()
             if (disChargeAlterCoolDownJob.isActive) disChargeAlterCoolDownJob.cancel()
-        } catch (ignored: Exception) {}
+        } catch (ignored: Exception) {
+        }
     }
 
     override fun onCreate() {
         val filter = IntentFilter("android.intent.CLOSE_ACTIVITY")
         registerReceiver(exitSignalReceiver, filter)
-        SharedPrefs.setBoolean("isAlarmPlaying", false, this)
+        SharedPrefs.setBoolean(this, "isAlarmPlaying", false)
         super.onCreate()
     }
 

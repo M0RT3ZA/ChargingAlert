@@ -47,7 +47,8 @@ class DataReceiverService : Service() {
                 )
             }
         } else {
-            Log.d("DataReceiverServiceLog",
+            Log.d(
+                "DataReceiverServiceLog",
                 "with a null intent. It has been probably restarted by the system."
             )
         }
@@ -57,7 +58,16 @@ class DataReceiverService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        startForeground(1, ServiceNotificationTools(this).createNotification())
+        startForeground(
+            1,
+            ServiceNotificationTools(this).createServiceNotification(
+                getString(R.string.serviceNotificationTitle),
+                getString(R.string.serviceNotificationDescription),
+                R.drawable.ic_stat_name,
+                getString(R.string.exitServiceDescription),
+                R.drawable.ic_baseline_close_24
+            )
+        )
         val receiveFilter = IntentFilter()
         receiveFilter.addAction("android.provider.Telephony.SMS_RECEIVED")
         receiveFilter.priority = 100
@@ -69,7 +79,7 @@ class DataReceiverService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         if (isServiceStoppedByUser) {
-            ToastMaker(this, getString(R.string.service_stopped)).sh()
+            ToastMaker(this, "getString(R.string.service_stopped)").sh()
 //            networkMonitoringUtil.unRegisterNetworkCallbackEvents()
         }
         unregisterReceiver(messageReceiver)
@@ -82,15 +92,19 @@ class DataReceiverService : Service() {
             it.setPackage(packageName)
         }
         val restartServicePendingIntent: PendingIntent =
-            PendingIntent.getService(this, 1, restartServiceIntent,
-                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
+            PendingIntent.getService(
+                this, 1, restartServiceIntent,
+                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
+            )
         this.getSystemService(Context.ALARM_SERVICE)
-        val alarmService: AlarmManager = this.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        alarmService.set(AlarmManager.ELAPSED_REALTIME,
+        val alarmService: AlarmManager =
+            this.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        alarmService.set(
+            AlarmManager.ELAPSED_REALTIME,
             SystemClock.elapsedRealtime() + 1000,
-            restartServicePendingIntent)
+            restartServicePendingIntent
+        )
     }
-
 
 
     @OptIn(DelicateCoroutinesApi::class)
@@ -99,9 +113,10 @@ class DataReceiverService : Service() {
 
         Log.d("DataReceiverServiceLog", "Starting the foreground service task")
         if (isServiceStoppedByUser)
-            ToastMaker(this, getString(R.string.service_started)).sh()
+            ToastMaker(this, "getString(R.string.service_started)").sh()
         isServiceStarted = true
-        setServiceState(this,
+        setServiceState(
+            this,
             ServiceState.STARTED
         )
 
@@ -127,7 +142,7 @@ class DataReceiverService : Service() {
     private fun stopService() {
         Log.d("DataReceiverServiceLog", "Stopping the foreground service")
         if (isServiceStoppedByUser)
-            ToastMaker(this, getString(R.string.stopping_service)).sh()
+            ToastMaker(this, "getString(R.string.stopping_service)").sh()
         try {
             wakeLock?.let {
                 if (it.isHeld) {

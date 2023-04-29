@@ -15,8 +15,7 @@ class
 BootUpReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (SharedPrefs.getBoolean(
-                "bootFlag",
-                context
+                context, "bootFlag"
             ) && Intent.ACTION_BOOT_COMPLETED == intent.action &&
             !ServiceMonitor().isMyServiceRunning(ChargingMonitorService::class.java, context)
         ) {

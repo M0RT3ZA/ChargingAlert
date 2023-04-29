@@ -9,8 +9,8 @@ import ir.morteza_aghighi.chargingalert.tools.SharedPrefs
 class StartReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (SharedPrefs.getBoolean("runOnBoot", context)
-            && SharedPrefs.getBoolean("remembered", context)
+        if (SharedPrefs.getBoolean(context, "runOnBoot")
+            && SharedPrefs.getBoolean(context, "remembered")
             && intent.action == Intent.ACTION_BOOT_COMPLETED
             && getServiceState(context) == ServiceState.STARTED) {
             Intent(context, DataReceiverService::class.java).also {

@@ -61,7 +61,7 @@ class AlertActivity : AppCompatActivity() {
 
         /**
          * check to see if user want to play alert on DND or not.*/
-        bypassDND = SharedPrefs.getBoolean("bypassDND", applicationContext)
+        bypassDND = SharedPrefs.getBoolean(applicationContext, "bypassDND")
 
 
         /**
@@ -147,9 +147,9 @@ class AlertActivity : AppCompatActivity() {
 
             /** setting user preferred volume for both channels*/
             mediaPlayer.setVolume(
-                SharedPrefs.getInt("volume", applicationContext)
+                SharedPrefs.getInt(applicationContext, "volume")
                     .toFloat() / (audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) * 10),
-                SharedPrefs.getInt("volume", applicationContext)
+                SharedPrefs.getInt(applicationContext, "volume")
                     .toFloat() / (audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) * 10)
             )
 
