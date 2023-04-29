@@ -1,10 +1,13 @@
-package ir.morteza_aghighi.chargingalert.tools
+package ir.morteza_aghighi.chargingalert.tools.backgroundService
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import ir.morteza_aghighi.chargingalert.model.ChargingMonitorService
+import ir.morteza_aghighi.chargingalert.tools.ServiceMonitor
+import ir.morteza_aghighi.chargingalert.tools.SharedPrefs
+import ir.morteza_aghighi.chargingalert.tools.ToastMaker
 
 class
 /*tittle = getString(R.string.warning);

@@ -150,6 +150,8 @@ class ChargingMonitorService : Service() {
                         SharedPrefs.setBoolean("isAlarmPlaying", false, context)
                     }
                 }
+                /** here we create battery status intent and broadcast it so can receive
+                 * the results any time that battery status is changed on UiAndServiceController class.*/
                 val batteryStatus = Intent("android.intent.BATTERY_STATUS")
                 sendBroadcast(batteryStatus)
             }

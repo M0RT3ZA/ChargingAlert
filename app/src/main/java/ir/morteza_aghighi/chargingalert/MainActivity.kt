@@ -11,12 +11,14 @@ import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.PowerManager
 import android.provider.Settings
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.getkeepsafe.taptargetview.TapTarget
 import com.getkeepsafe.taptargetview.TapTargetSequence
 import ir.morteza_aghighi.chargingalert.databinding.ActivityMainBinding
 import ir.morteza_aghighi.chargingalert.model.BatteryInfoModel
+import ir.morteza_aghighi.chargingalert.model.ChargingMonitorService
 import ir.morteza_aghighi.chargingalert.tools.QuestionDialog
 import ir.morteza_aghighi.chargingalert.tools.QuestionDialog.QuestionListener
 import ir.morteza_aghighi.chargingalert.tools.SharedPrefs
@@ -44,16 +46,16 @@ class MainActivity : AppCompatActivity(), QuestionListener {
         super.onCreate(savedInstanceState)
         mainActivityBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mainActivityBinding.root)
-        if (!SharedPrefs.getBoolean("notFirstRun", this)) {
-            SharedPrefs.setBoolean("notFirstRun", true, this)
-            SharedPrefs.setInt("chargingLimit", 90, this)
+        if (!SharedPrefs.getBoolean(this@MainActivity, "notFirstRun")) {
+            SharedPrefs.setBoolean(this@MainActivity, "notFirstRun", true)
+            SharedPrefs.setInt(this@MainActivity, "chargingLimit", 90)
         }
         if (savedInstanceState == null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) checkDrawOverlayPermission()
         uiThings()
     }
 
     private fun initTour() {
-        if (SharedPrefs.getBoolean("tourComplete", applicationContext)) return
+        if (SharedPrefs.getBoolean(this@MainActivity, "tourComplete")) return
 
         TapTargetSequence(this@MainActivity).targets(
             TapTarget.forView(
@@ -94,7 +96,7 @@ class MainActivity : AppCompatActivity(), QuestionListener {
         ).continueOnCancel(true)
             .listener(object : TapTargetSequence.Listener {
                 override fun onSequenceFinish() {
-                    SharedPrefs.setBoolean("tourComplete", true, this@MainActivity)
+                    SharedPrefs.setBoolean(this@MainActivity, "tourComplete", true)
                 }
 
                 override fun onSequenceStep(lastTarget: TapTarget?, targetClicked: Boolean) {}
@@ -147,7 +149,7 @@ class MainActivity : AppCompatActivity(), QuestionListener {
 //            this.setEnableEffect(true) //disable the switch animation
             this.setOnCheckedChangeListener { _, isChecked ->
                 SharedPrefs.setBoolean(
-                    "bootFlag", isChecked, this@MainActivity
+                    this@MainActivity, "bootFlag", isChecked
                 )
             }
         }
@@ -156,11 +158,11 @@ class MainActivity : AppCompatActivity(), QuestionListener {
             //            this.setEnableEffect(true) //disable the switch animation
             this.setOnCheckedChangeListener { _, isChecked ->
                 SharedPrefs.setBoolean(
-                    "bypassDND", isChecked, this@MainActivity
+                    this@MainActivity, "bypassDND", isChecked
                 )
             }
         }
-        if (SharedPrefs.getBoolean("isAlertEnabled", this)) {
+        if (SharedPrefs.getBoolean(this@MainActivity, "isAlertEnabled")) {
             btnChargingAlert.background =
                 ContextCompat.getDrawable(this, R.drawable.custom_ripple_reject)
             btnChargingAlert.text = resources.getString(R.string.disable_charging_alert)
@@ -184,11 +186,11 @@ class MainActivity : AppCompatActivity(), QuestionListener {
             }
             swBoot.apply {
                 this.isEnabled = true
-                this.setCheckedNoEvent(SharedPrefs.getBoolean("bootFlag", this@MainActivity))
+                this.setCheckedNoEvent(SharedPrefs.getBoolean(this@MainActivity, "bootFlag"))
             }
             swDND.apply {
                 this.isEnabled = true
-                this.setCheckedNoEvent(SharedPrefs.getBoolean("bypassDND", this@MainActivity))
+                this.setCheckedNoEvent(SharedPrefs.getBoolean(this@MainActivity, "bypassDND"))
             }
         } else {
             btnChargingAlert.background =
@@ -223,8 +225,8 @@ class MainActivity : AppCompatActivity(), QuestionListener {
             }
         }
         btnChargingAlert.setOnClickListener {
-            if (SharedPrefs.getBoolean("isAlertEnabled", this@MainActivity)) {
-                SharedPrefs.setBoolean("isAlertEnabled", false, this@MainActivity)
+            if (SharedPrefs.getBoolean(this@MainActivity, "isAlertEnabled")) {
+                SharedPrefs.setBoolean(this@MainActivity, "isAlertEnabled", false)
                 btnChargingAlert.background =
                     ContextCompat.getDrawable(this@MainActivity, R.drawable.custom_ripple_confirm)
                 btnChargingAlert.text = resources.getString(R.string.enable_charging_alert)
@@ -256,7 +258,7 @@ class MainActivity : AppCompatActivity(), QuestionListener {
                     this.setCheckedNoEvent(false)
                 }
             } else {
-                SharedPrefs.setBoolean("isAlertEnabled", true, this@MainActivity)
+                SharedPrefs.setBoolean(this@MainActivity, "isAlertEnabled", true)
                 btnChargingAlert.background =
                     ContextCompat.getDrawable(this@MainActivity, R.drawable.custom_ripple_reject)
                 btnChargingAlert.text = resources.getString(R.string.disable_charging_alert)
@@ -280,11 +282,11 @@ class MainActivity : AppCompatActivity(), QuestionListener {
                 }
                 swBoot.apply {
                     this.isEnabled = true
-                    this.setCheckedNoEvent(SharedPrefs.getBoolean("bootFlag", this@MainActivity))
+                    this.setCheckedNoEvent(SharedPrefs.getBoolean(this@MainActivity, "bootFlag"))
                 }
                 swDND.apply {
                     this.isEnabled = true
-                    this.setCheckedNoEvent(SharedPrefs.getBoolean("bypassDND", this@MainActivity))
+                    this.setCheckedNoEvent(SharedPrefs.getBoolean(this@MainActivity, "bypassDND"))
                 }
             }
         }
@@ -303,54 +305,54 @@ class MainActivity : AppCompatActivity(), QuestionListener {
             }
         }
 
-        iosPbChargeThreshold.setProgress(SharedPrefs.getInt("chargingLimit", applicationContext))
+        iosPbChargeThreshold.setProgress(SharedPrefs.getInt(this@MainActivity, "chargingLimit"))
         iosPbChargeThreshold.setOnProgressChangeListener { _, progress, _, _, actionUp ->
             if (actionUp) if (SharedPrefs.getInt(
-                    "disChargingLimit", applicationContext
+                    this@MainActivity, "disChargingLimit"
                 ) < progress
-            ) SharedPrefs.setInt("chargingLimit", progress, applicationContext)
+            ) SharedPrefs.setInt(this@MainActivity, "chargingLimit", progress)
             else {
                 ToastMaker(applicationContext, getString(R.string.lowerAlert), true).sh()
                 iosPbChargeThreshold.setProgress(iosPbDischargeThreshold.getProgress() + 1)
                 SharedPrefs.setInt(
-                    "chargingLimit", iosPbDischargeThreshold.getProgress() + 1, applicationContext
+                    this@MainActivity, "chargingLimit", iosPbDischargeThreshold.getProgress() + 1
                 )
             }
         }
 
         iosPbDischargeThreshold.setProgress(
             SharedPrefs.getInt(
-                "disChargingLimit", applicationContext
+                this@MainActivity, "disChargingLimit"
             )
         )
         iosPbDischargeThreshold.setOnProgressChangeListener { _, progress, _, _, actionUp ->
             if (actionUp) if (SharedPrefs.getInt(
-                    "chargingLimit", applicationContext
+                    this@MainActivity, "chargingLimit"
                 ) > progress
-            ) SharedPrefs.setInt("disChargingLimit", progress, applicationContext)
+            ) SharedPrefs.setInt(this@MainActivity, "disChargingLimit", progress)
             else {
                 ToastMaker(applicationContext, getString(R.string.lowerAlert), true).sh()
                 iosPbDischargeThreshold.setProgress(iosPbChargeThreshold.getProgress() - 1)
                 SharedPrefs.setInt(
-                    "disChargingLimit", iosPbChargeThreshold.getProgress() - 1, applicationContext
+                    this@MainActivity, "disChargingLimit", iosPbChargeThreshold.getProgress() - 1
                 )
             }
         }
         iosPbVolume.maxProgress = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) * 10
         iosPbVolume.minProgress = 0
-        iosPbVolume.setProgress(SharedPrefs.getInt("volume", applicationContext) * 10)
+        iosPbVolume.setProgress(SharedPrefs.getInt(this@MainActivity, "volume") * 10)
         iosPbVolume.setOnProgressChangeListener { _, progress, _, _, actionUp ->
             if (actionUp) {
-                SharedPrefs.setInt("volume", (progress / 10F).roundToInt(), applicationContext)
+                SharedPrefs.setInt(this@MainActivity, "volume", (progress / 10F).roundToInt())
                 if (!mediaPlayer.isPlaying) {
 //                    currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
                     mediaPlayer = MediaPlayer.create(
                         applicationContext, Settings.System.DEFAULT_ALARM_ALERT_URI
                     )
                     mediaPlayer.setVolume(
-                        SharedPrefs.getInt("volume", applicationContext)
+                        SharedPrefs.getInt(this@MainActivity, "volume")
                             .toFloat() / iosPbVolume.maxProgress,
-                        SharedPrefs.getInt("volume", applicationContext)
+                        SharedPrefs.getInt(this@MainActivity, "volume")
                             .toFloat() / iosPbVolume.maxProgress
                     )
                     audioManager.setStreamVolume(
@@ -368,9 +370,9 @@ class MainActivity : AppCompatActivity(), QuestionListener {
                         applicationContext, Settings.System.DEFAULT_ALARM_ALERT_URI
                     )
                     mediaPlayer.setVolume(
-                        SharedPrefs.getInt("volume", applicationContext)
+                        SharedPrefs.getInt(this@MainActivity, "volume")
                             .toFloat() / iosPbVolume.maxProgress,
-                        SharedPrefs.getInt("volume", applicationContext)
+                        SharedPrefs.getInt(this@MainActivity, "volume")
                             .toFloat() / iosPbVolume.maxProgress
                     )
                     audioManager.setStreamVolume(
@@ -421,7 +423,7 @@ class MainActivity : AppCompatActivity(), QuestionListener {
         if (requestCode == OVERLAY_REQUEST_CODE) batteryOptimizationRequest()
         else if (requestCode == BATTERY_OPTIMIZATION_REQUEST_CODE) {
             SharedPrefs.setBoolean(
-                "isBatteryOptimizationAsked", true, this@MainActivity
+                this@MainActivity, "isBatteryOptimizationAsked", true
             )
             initTour()
         }

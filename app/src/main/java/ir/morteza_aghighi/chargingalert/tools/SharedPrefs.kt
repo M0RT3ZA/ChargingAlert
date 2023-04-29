@@ -1,65 +1,65 @@
 package ir.morteza_aghighi.chargingalert.tools
 
-import android.annotation.SuppressLint
 import android.content.Context
-import android.preference.PreferenceManager
+import android.content.SharedPreferences
+
+private const val DEFAULT_PREFERENCES_NAME = "CA_SERVICE_KEY"
 
 object SharedPrefs {
-    @JvmStatic
-    @SuppressLint("ApplySharedPref")
-    fun setString(key: String?, value: String?, context: Context?) {
-        val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-        val editor = preferences.edit()
-        editor.putString(key, value)
-        editor.commit()
+
+    fun setString(context: Context?, key: String?, value: String?) {
+        val sharedPrefs = getPreferences(context!!)
+        sharedPrefs.edit().let {
+            it.putString(key, value)
+            it.apply()
+        }
     }
 
-    @JvmStatic
-    fun getString(key: String?, context: Context?): String? {
-        val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-        return preferences.getString(key, "null")
+    fun getString(context: Context?, key: String?, defValue: String = "null"): String? {
+        val sharedPrefs = getPreferences(context!!)
+        return sharedPrefs.getString(key, defValue)
     }
 
-    @JvmStatic
-    @SuppressLint("ApplySharedPref")
-    fun setBoolean(key: String?, value: Boolean, context: Context?) {
-        val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-        val editor = preferences.edit()
-        editor.putBoolean(key, value)
-        editor.commit()
+    fun setBoolean(context: Context?, key: String?, value: Boolean) {
+        val sharedPrefs = getPreferences(context!!)
+        sharedPrefs.edit().let {
+            it.putBoolean(key, value)
+            it.apply()
+        }
     }
 
-    @JvmStatic
-    fun getBoolean(key: String?, context: Context?): Boolean {
-        val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-        return preferences.getBoolean(key, false)
+    fun getBoolean(context: Context?, key: String?, defValue: Boolean = false): Boolean {
+        val sharedPrefs = getPreferences(context!!)
+        return sharedPrefs.getBoolean(key, defValue)
     }
 
-    @JvmStatic
-    @SuppressLint("ApplySharedPref")
-    fun setInt(key: String?, value: Int, context: Context?) {
-        val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-        val editor = preferences.edit()
-        editor.putInt(key, value)
-        editor.commit()
+    fun setInt(context: Context?, key: String?, value: Int) {
+        val sharedPrefs = getPreferences(context!!)
+        sharedPrefs.edit().let {
+            it.putInt(key, value)
+            it.apply()
+        }
     }
 
-    @JvmStatic
-    fun getInt(key: String?, context: Context?): Int {
-        val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-        return preferences.getInt(key, 0)
+    fun getInt(context: Context?, key: String?, defValue: Int = 0): Int {
+        val sharedPrefs = getPreferences(context!!)
+        return sharedPrefs.getInt(key, defValue)
     }
 
-    @SuppressLint("ApplySharedPref")
-    fun setFloat(key: String?, value: Float, context: Context?) {
-        val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-        val editor = preferences.edit()
-        editor.putFloat(key, value)
-        editor.commit()
+    fun setFloat(context: Context?, key: String?, value: Float) {
+        val sharedPrefs = getPreferences(context!!)
+        sharedPrefs.edit().let {
+            it.putFloat(key, value)
+            it.apply()
+        }
     }
 
-    fun getFloat(key: String?, context: Context?): Float {
-        val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-        return preferences.getFloat(key, 0f)
+    fun getFloat(context: Context?, key: String?, defValue: Float = 0f): Float {
+        val sharedPrefs = getPreferences(context!!)
+        return sharedPrefs.getFloat(key, defValue)
+    }
+
+    private fun getPreferences(context: Context): SharedPreferences {
+        return context.getSharedPreferences(DEFAULT_PREFERENCES_NAME, 0)
     }
 }

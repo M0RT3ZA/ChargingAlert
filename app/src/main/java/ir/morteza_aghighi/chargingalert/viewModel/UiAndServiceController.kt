@@ -13,6 +13,7 @@ import ir.morteza_aghighi.chargingalert.databinding.ActivityMainBinding
 import ir.morteza_aghighi.chargingalert.model.BatteryInfoModel
 import ir.morteza_aghighi.chargingalert.model.ChargingMonitorService
 import ir.morteza_aghighi.chargingalert.tools.ServiceMonitor
+import ir.morteza_aghighi.chargingalert.tools.ToastMaker
 import kotlinx.coroutines.*
 
 class UiAndServiceController(

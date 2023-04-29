@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
     <uses-permission android:name="Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:allowBackup="true"
@@ -30,7 +31,7 @@
             tools:ignore="LockedOrientationActivity" />
 
         <receiver
-            android:name="ir.morteza_aghighi.chargingalert.tools.BootUpReceiver"
+            android:name="ir.morteza_aghighi.chargingalert.tools.backgroundService.BootUpReceiver"
             android:enabled="true"
             android:exported="false">
             <intent-filter>
@@ -44,6 +45,24 @@
         <service
             android:name="ir.morteza_aghighi.chargingalert.model.ChargingMonitorService"
             android:enabled="true" />
+
+        <service
+            android:name=".tools.backgroundService.DataReceiverService"
+            android:enabled="true"
+            android:exported="false"
+            android:stopWithTask="false" />
+
+        <receiver
+            android:name=".tools.backgroundService.StartReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".tools.backgroundService.StopServiceBroadcast" />
+
+
         <activity
             android:name="ir.morteza_aghighi.chargingalert.MainActivity"
             android:launchMode="singleInstance"
