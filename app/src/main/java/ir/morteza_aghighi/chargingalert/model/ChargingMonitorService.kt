@@ -17,7 +17,6 @@ import ir.morteza_aghighi.chargingalert.AlertActivity
 import ir.morteza_aghighi.chargingalert.MainActivity
 import ir.morteza_aghighi.chargingalert.R
 import ir.morteza_aghighi.chargingalert.tools.SharedPrefs
-import ir.morteza_aghighi.chargingalert.tools.backgroundService.ServiceNotificationTools
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -188,19 +187,20 @@ class ChargingMonitorService : Service() {
             applicationContext, 0, exitIntent, PendingIntent.FLAG_IMMUTABLE
         )
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Monitoring Battery Status...").setPriority(Notification.PRIORITY_MIN)
-            .setContentText("Touch to open Application").setSmallIcon(R.drawable.ic_stat_name)
+            .setContentTitle(getString(R.string.serviceNotificationTitle))
+            .setPriority(Notification.PRIORITY_MIN)
+            .setContentText(getString(R.string.serviceNotificationDescription))
+            .setSmallIcon(R.drawable.ic_stat_name)
             .setContentIntent(pendingIntent)
-            .addAction(R.drawable.ic_stat_name, "Turn OFF Monitoring Service", pendingExitIntent)
+            .addAction(
+                R.drawable.ic_baseline_close_24,
+                getString(R.string.exitServiceDescription),
+                pendingExitIntent
+            )
             .build()
 
 
-        startForeground(1, ServiceNotificationTools(this)
-            .createServiceNotification(getString(R.string.serviceNotificationTitle),
-                getString(R.string.serviceNotificationDescription),
-                R.drawable.ic_stat_name,
-                getString(R.string.exitServiceDescription),
-                R.drawable.ic_baseline_close_24))
+        startForeground(1, notification)
         //do heavy work on a background thread
         return START_STICKY
     }
