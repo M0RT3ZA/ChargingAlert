@@ -176,6 +176,8 @@ class ChargingMonitorService : Service() {
         registerReceiver(batteryReceiver, batIFilter)
         /** with below function we create a notification channel for our background service.*/
         createNotificationChannel()
+
+        /** when user touches notification body the main activity launches*/
         val notificationIntent = Intent(this, MainActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
             this,
@@ -184,32 +186,48 @@ class ChargingMonitorService : Service() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        //This is the intent of PendingIntent
+        /** setting up exit service and activity with touching exit button in notification.*/
         val exitIntent = Intent("android.intent.CLOSE_ACTIVITY")
         val pendingExitIntent = PendingIntent.getBroadcast(
             applicationContext, 0, exitIntent, PendingIntent.FLAG_IMMUTABLE
         )
-        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle(getString(R.string.serviceNotificationTitle))
-            .setPriority(Notification.PRIORITY_MIN)
-            .setContentText(getString(R.string.serviceNotificationDescription))
-            .setSmallIcon(R.drawable.ic_stat_name)
-            .setContentIntent(pendingIntent)
-            .addAction(
-                R.drawable.ic_baseline_close_24,
-                getString(R.string.exitServiceDescription),
-                pendingExitIntent
-            )
-            .build()
 
-
+        /** building notification.*/
+        val notification = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            NotificationCompat.Builder(this, CHANNEL_ID)
+                .setContentTitle(getString(R.string.serviceNotificationTitle))
+                .setPriority(NotificationManager.IMPORTANCE_MIN)
+                .setContentText(getString(R.string.serviceNotificationDescription))
+                .setSmallIcon(R.drawable.ic_stat_name)
+                .setContentIntent(pendingIntent)
+                .addAction(
+                    R.drawable.ic_baseline_close_24,
+                    getString(R.string.exitServiceDescription),
+                    pendingExitIntent
+                )
+                .build()
+        } else {
+            NotificationCompat.Builder(this, CHANNEL_ID)
+                .setContentTitle(getString(R.string.serviceNotificationTitle))
+                .setPriority(Notification.PRIORITY_MIN)
+                .setContentText(getString(R.string.serviceNotificationDescription))
+                .setSmallIcon(R.drawable.ic_stat_name)
+                .setContentIntent(pendingIntent)
+                .addAction(
+                    R.drawable.ic_baseline_close_24,
+                    getString(R.string.exitServiceDescription),
+                    pendingExitIntent
+                )
+                .build()
+        }
+        /** showing notification for running service */
         startForeground(1, notification)
-        //do heavy work on a background thread
         return START_STICKY
     }
 
     override fun onDestroy() {
         try {
+            /** cancelling timers and unregistering receivers.*/
             unregisterReceiver(batteryReceiver)
             unregisterReceiver(exitSignalReceiver)
             if (chargeAlterCoolDownJob.isActive) chargeAlterCoolDownJob.cancel()
