@@ -38,7 +38,10 @@
     <string name="runOnBootDescription">If you want the background service automatically runs on phone\'s startup, turn on this switch.</string>
     <string name="enableServiceTitle">Enable Service</string>
     <string name="enableServiceDescription">The service is not running until you turn it on.\nWhen you tap this button the background service will be enabled and the color of button turns red.</string>
-    <string name="serviceNotificationTitle">Monitoring Battery Status...</string>
-    <string name="serviceNotificationDescription">Touch to open Application</string>
-    <string name="exitServiceDescription">Turn OFF Monitoring Service</string>
+    <string name="monitoring">Monitoring Battery Status...</string>
+    <string name="running_description">Touch to open Application</string>
+    <string name="stop_background_service">Turn OFF Monitoring Service</string>
+    <string name="service_stopped">Service Stopped.</string>
+    <string name="service_started">Service Started.</string>
+    <string name="stopping_service">Stopping Service...</string>
 </resources>

@@ -30,35 +30,48 @@ import kotlinx.coroutines.launch
 private const val CHANNEL_ID = "ChargingAlertForegroundServiceChannel"
 
 /** our service class which extends android service class*/
+/*
 class ChargingMonitorService : Service() {
 
-    /** coroutine exception handler*/
+    */
+/** coroutine exception handler*//*
+
     private val errorHandler = CoroutineExceptionHandler { _, throwable ->
         throwable.printStackTrace()
     }
 
-    /** two coroutines, one for charging alert cool down and one for discharge alert cool down.
+    */
+/** two coroutines, one for charging alert cool down and one for discharge alert cool down.
      * we using cool down timers so when the alert triggered service wait until cool down time is over,
-     * the if user still does not plug/unplug the charger the service triggers alert again.*/
+     * the if user still does not plug/unplug the charger the service triggers alert again.*//*
+
     val chargeAlterCoolDownJob = CoroutineScope(Dispatchers.Default + errorHandler)
     val disChargeAlterCoolDownJob = CoroutineScope(Dispatchers.Default + errorHandler)
 
-    /** battery data model to set and get battery info*/
+    */
+/** battery data model to set and get battery info*//*
+
     private val batteryInfoModel = BatteryInfoModel()
 
-    /** with below intent filter and inside broadcast receiver,
+    */
+/** with below intent filter and inside broadcast receiver,
      * we get battery info every time that battery info is changed.
      * when service is started the first thing it does is to call registerReceiver and pass these two
-     * variables to that.*/
+     * variables to that.*//*
+
     private var batIFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
     private var batteryReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            /** filtering the received data because we only need ACTION_BATTERY_CHANGED intents.
+            */
+/** filtering the received data because we only need ACTION_BATTERY_CHANGED intents.
              * probably the if statement below is not necessary because
              * when we registered receiver we passed:
-             * batIFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)*/
+             * batIFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)*//*
+
             if (intent.action == Intent.ACTION_BATTERY_CHANGED) {
-                /** setting battery parameters below.*/
+                */
+/** setting battery parameters below.*//*
+
                 batteryInfoModel.setBatLevel(intent.getIntExtra("level", 0))
 
                 batteryInfoModel.setBatPercentage("${batteryInfoModel.getBatLevel()}%")
@@ -68,8 +81,10 @@ class ChargingMonitorService : Service() {
                 )
 
                 batteryInfoModel.setBatHealth(
-                    /** the default value is set to -1 because none of "health" values are -1
-                     * so -1 means "Unspecified Failure"*/
+                    */
+/** the default value is set to -1 because none of "health" values are -1
+                     * so -1 means "Unspecified Failure"*//*
+
                     when (intent.getIntExtra("health", -1)) {
                         BatteryManager.BATTERY_HEALTH_COLD -> "Cold"
                         BatteryManager.BATTERY_HEALTH_DEAD -> "Dead"
@@ -85,8 +100,10 @@ class ChargingMonitorService : Service() {
 
                 batteryInfoModel.setBatType(intent.getStringExtra("technology").toString())
 
-                /** the default value is set to -1 because none of "plugged" values are -1
-                 * so -1 means "Unspecified Failure"*/
+                */
+/** the default value is set to -1 because none of "plugged" values are -1
+                 * so -1 means "Unspecified Failure"*//*
+
                 val chargingType = intent.getIntExtra("plugged", -1)
                 batteryInfoModel.setBatChargingType(
                     when (chargingType) {
@@ -100,51 +117,54 @@ class ChargingMonitorService : Service() {
 
                 batteryInfoModel.setBatTemp("${intent.getIntExtra("temperature", 0) / 10}°C")
 
-                /** if the alert is enabled, and charging type is not "Unplugged",
+                */
+/** if the alert is enabled, and charging type is not "Unplugged",
                  * and battery level is equal or greater than the limit set by user,
                  * it means we should play alarm. so if alarm is not already playing
-                 * the alert progress starts.*/
-                if (SharedPrefs.getBoolean(
-                        context, "isAlertEnabled"
-                    ) && batteryInfoModel.getBatChargingType() != "Unplugged" && SharedPrefs.getInt(
-                        context, "chargingLimit"
-                    ) <= batteryInfoModel.getBatLevel() && !SharedPrefs.getBoolean(
-                        context, "isAlarmPlaying"
-                    )
+                 * the alert progress starts.*//*
+
+                if (SharedPrefs.getBoolean("isAlertEnabled", context)
+                    && batteryInfoModel.getBatChargingType() != "Unplugged"
+                    && SharedPrefs.getInt("chargingLimit", context) <= batteryInfoModel.getBatLevel()
+                    && !SharedPrefs.getBoolean("isAlarmPlaying", context)
                 ) {
-                    /** storing the "isAlarmPlaying" value in shared preferences
+                    */
+/** storing the "isAlarmPlaying" value in shared preferences
                      * so next time the if is not satisfied and this if body does not execute,
-                     * until the cool down timer finishes.*/
-                    SharedPrefs.setBoolean(context, "isAlarmPlaying", true)
+                     * until the cool down timer finishes.*//*
 
-                    /** launching alert activity*/
+                    SharedPrefs.setBoolean("isAlarmPlaying", true, context)
+
+                    */
+/** launching alert activity*//*
+
                     context.startActivity(
-                        Intent(
-                            context, AlertActivity::class.java
-                        ).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                        Intent(context, AlertActivity::class.java)
+                            .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
                     )
 
-                    /** waiting 5 minute then reset the value of "isAlarmPlaying" back to false,
-                     * so if user still needs to plug/unplug the charger alert plays again.*/
+                    */
+/** waiting 5 minute then reset the value of "isAlarmPlaying" back to false,
+                     * so if user still needs to plug/unplug the charger alert plays again.*//*
+
                     chargeAlterCoolDownJob.launch {
                         delay(300000)
-                        SharedPrefs.setBoolean(context, "isAlarmPlaying", false)
+                        SharedPrefs.setBoolean("isAlarmPlaying", false, context)
                     }
                 }
 
-                /** if the alert is enabled, and charging type is "Unplugged",
+                */
+/** if the alert is enabled, and charging type is "Unplugged",
                  * and battery level is equal or lower than the limit set by user,
                  * it means we should play alarm. so if alarm is not already playing
-                 * the alert progress starts.*/
-                if (SharedPrefs.getBoolean(
-                        context, "isAlertEnabled"
-                    ) && batteryInfoModel.getBatChargingType() == "Unplugged" && SharedPrefs.getInt(
-                        context, "disChargingLimit"
-                    ) >= batteryInfoModel.getBatLevel() && !SharedPrefs.getBoolean(
-                        context, "isAlarmPlaying"
-                    )
+                 * the alert progress starts.*//*
+
+                if (SharedPrefs.getBoolean("isAlertEnabled", context)
+                    && batteryInfoModel.getBatChargingType() == "Unplugged"
+                    && SharedPrefs.getInt("disChargingLimit", context) >= batteryInfoModel.getBatLevel()
+                    && !SharedPrefs.getBoolean("isAlarmPlaying", context)
                 ) {
-                    SharedPrefs.setBoolean(context, "isAlarmPlaying", true)
+                    SharedPrefs.setBoolean("isAlarmPlaying", true, context)
                     context.startActivity(
                         Intent(
                             context, AlertActivity::class.java
@@ -154,30 +174,29 @@ class ChargingMonitorService : Service() {
                     )
                     disChargeAlterCoolDownJob.launch {
                         delay(300000)
-                        SharedPrefs.setBoolean(context, "isAlarmPlaying", false)
+                        SharedPrefs.setBoolean("isAlarmPlaying", false, context)
                     }
                 }
-                /** here we create battery status intent and broadcast it so can receive
-                 * the results any time that battery status is changed on UiAndServiceController class.*/
+                */
+/** here we create battery status intent and broadcast it so can receive
+                 * the results any time that battery status is changed on UiAndServiceController class.*//*
+
                 val batteryStatus = Intent("android.intent.BATTERY_STATUS")
                 sendBroadcast(batteryStatus)
             }
         }
     }
 
-    /** the service is not a bound service so onBind function returns null*/
+    */
+/** the service is not a bound service so onBind function returns null*//*
+
     override fun onBind(intent: Intent): IBinder? {
         return null
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-
-        /** when service started we register our battery broadcast receiver with intent filter*/
         registerReceiver(batteryReceiver, batIFilter)
-        /** with below function we create a notification channel for our background service.*/
         createNotificationChannel()
-
-        /** when user touches notification body the main activity launches*/
         val notificationIntent = Intent(this, MainActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
             this,
@@ -186,60 +205,35 @@ class ChargingMonitorService : Service() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        /** setting up exit service and activity with touching exit button in notification.*/
+        //This is the intent of PendingIntent
         val exitIntent = Intent("android.intent.CLOSE_ACTIVITY")
         val pendingExitIntent = PendingIntent.getBroadcast(
             applicationContext, 0, exitIntent, PendingIntent.FLAG_IMMUTABLE
         )
-
-        /** building notification.*/
-        val notification = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle(getString(R.string.serviceNotificationTitle))
-                .setPriority(NotificationManager.IMPORTANCE_MIN)
-                .setContentText(getString(R.string.serviceNotificationDescription))
-                .setSmallIcon(R.drawable.ic_stat_name)
-                .setContentIntent(pendingIntent)
-                .addAction(
-                    R.drawable.ic_baseline_close_24,
-                    getString(R.string.exitServiceDescription),
-                    pendingExitIntent
-                )
-                .build()
-        } else {
-            NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle(getString(R.string.serviceNotificationTitle))
-                .setPriority(Notification.PRIORITY_MIN)
-                .setContentText(getString(R.string.serviceNotificationDescription))
-                .setSmallIcon(R.drawable.ic_stat_name)
-                .setContentIntent(pendingIntent)
-                .addAction(
-                    R.drawable.ic_baseline_close_24,
-                    getString(R.string.exitServiceDescription),
-                    pendingExitIntent
-                )
-                .build()
-        }
-        /** showing notification for running service */
+        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
+            .setContentTitle("Monitoring Battery Status...").setPriority(Notification.PRIORITY_MIN)
+            .setContentText("Touch to open Application").setSmallIcon(R.drawable.ic_stat_name)
+            .setContentIntent(pendingIntent)
+            .addAction(R.drawable.ic_stat_name, "Turn OFF Monitoring Service", pendingExitIntent)
+            .build()
         startForeground(1, notification)
+        //do heavy work on a background thread
         return START_STICKY
     }
 
     override fun onDestroy() {
         try {
-            /** cancelling timers and unregistering receivers.*/
             unregisterReceiver(batteryReceiver)
             unregisterReceiver(exitSignalReceiver)
             if (chargeAlterCoolDownJob.isActive) chargeAlterCoolDownJob.cancel()
             if (disChargeAlterCoolDownJob.isActive) disChargeAlterCoolDownJob.cancel()
-        } catch (ignored: Exception) {
-        }
+        } catch (ignored: Exception) {}
     }
 
     override fun onCreate() {
         val filter = IntentFilter("android.intent.CLOSE_ACTIVITY")
         registerReceiver(exitSignalReceiver, filter)
-        SharedPrefs.setBoolean(this, "isAlarmPlaying", false)
+        SharedPrefs.setBoolean("isAlarmPlaying", false, this)
         super.onCreate()
     }
 
@@ -261,4 +255,4 @@ class ChargingMonitorService : Service() {
             stopService(Intent(this@ChargingMonitorService, ChargingMonitorService::class.java))
         }
     }
-}
+}*/

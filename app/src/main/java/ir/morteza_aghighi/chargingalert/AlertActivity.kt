@@ -131,7 +131,8 @@ class AlertActivity : AppCompatActivity() {
             /** checking 2 different condition and one of them must return true.
              * first check if the alert type is for discharge and the battery is still unplugged.
              * second one checks if the alert type is for charge and charger is still plugged in.*/
-            && ((isDischargeAlert && isUnplugged) || (!isDischargeAlert && !isUnplugged))) {
+            && ((isDischargeAlert && isUnplugged) || (!isDischargeAlert && !isUnplugged))
+        ) {
 
             /** if the above conditions are met first getting the default alarm music for the phone.*/
             RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)

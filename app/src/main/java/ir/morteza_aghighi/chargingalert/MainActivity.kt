@@ -11,18 +11,18 @@ import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.PowerManager
 import android.provider.Settings
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.getkeepsafe.taptargetview.TapTarget
 import com.getkeepsafe.taptargetview.TapTargetSequence
 import ir.morteza_aghighi.chargingalert.databinding.ActivityMainBinding
 import ir.morteza_aghighi.chargingalert.model.BatteryInfoModel
-import ir.morteza_aghighi.chargingalert.model.ChargingMonitorService
 import ir.morteza_aghighi.chargingalert.tools.QuestionDialog
 import ir.morteza_aghighi.chargingalert.tools.QuestionDialog.QuestionListener
 import ir.morteza_aghighi.chargingalert.tools.SharedPrefs
 import ir.morteza_aghighi.chargingalert.tools.ToastMaker
+import ir.morteza_aghighi.chargingalert.tools.backgroundService.ServiceActions
+import ir.morteza_aghighi.chargingalert.tools.backgroundService.ServiceStateChanger
 import ir.morteza_aghighi.chargingalert.viewModel.UiAndServiceController
 import kotlin.math.roundToInt
 
@@ -392,6 +392,7 @@ class MainActivity : AppCompatActivity(), QuestionListener {
 
     override fun onResume() {
         super.onResume()
+        ServiceStateChanger(this).actionOnService(ServiceActions.START)
         reloadUIAndVars()
     }
 
